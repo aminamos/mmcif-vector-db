@@ -1,9 +1,11 @@
 # DRAFT: NVIDIA autoencoder encoder (La-Proteina / RFD4-Proteina)
 
-Status: **draft for review by another agent**. Nothing here is implemented
-or benchmarked. The local encoder in `mmcif_vec/features.py` remains the
-default. This document is the work order for evaluating the NVIDIA
-autoencoder as a replacement encoder, nothing more.
+Status: **evaluated and rejected (2026-10-26)** — benchmark run, local
+encoder stays the default. See the NVIDIA section of
+[`EVALUATION.md`](../EVALUATION.md) and `results/BENCHMARK_RUN.md`.
+The local encoder in `mmcif_vec/features.py` remains the default. This
+document was the work order for evaluating the NVIDIA autoencoder as a
+replacement encoder, nothing more.
 
 ## Why this exists
 
@@ -114,20 +116,26 @@ the author from the setup doc alone.
 
 ## Suggested task breakdown for the reviewing agent
 
-- [ ] Confirm checkpoint source, size, and licence for the La-Proteina
+- [x] Confirm checkpoint source, size, and licence for the La-Proteina
       (or RFD4-Proteina) autoencoder weights; link them here.
-- [ ] Stand up the CUDA environment on a GPU host; record GPU, driver,
+      Done: `AE1_ucond_512.ckpt` / `AE2_ucond_800.ckpt` from Hugging Face
+      `nvidia/NV-La-Proteina-Ucond-v1` (ungated, NVIDIA Open Model License).
+- [x] Stand up the CUDA environment on a GPU host; record GPU, driver,
       CUDA, and exact package versions that worked.
-- [ ] Prove encoder-only inference: load a checkpoint, encode one
+      Done: RTX 4070 SUPER 12 GB (120 W cap), WSL2 Ubuntu-22.04, torch 2.7.0+cu118.
+- [x] Prove encoder-only inference: load a checkpoint, encode one
       small PDB chain (e.g. 1UBQ), print latent shape. No generation.
-- [ ] Extend `_atom_site` parsing to all-atom residues (above).
-- [ ] Implement `encode_chain` aggregation; wire behind the existing
+- [x] Extend `_atom_site` parsing to all-atom residues (above).
+- [x] Implement `encode_chain` aggregation; wire behind the existing
       `mmcif_vec/nvidia_encoder.py` stub (it currently raises
       `NotAvailable` on purpose — keep that behaviour until wired).
-- [ ] Run the benchmark protocol; write results into `EVALUATION.md`
+      Done: default pooling is now mean-only 8-d (validated; see EVALUATION.md).
+- [x] Run the benchmark protocol; write results into `EVALUATION.md`
       or a sibling file, including the losses.
+      Done: see `EVALUATION.md` and `results/BENCHMARK_RUN.md`.
 - [ ] Only if accepted: document how a user enables it
       (`--encoder nvidia` or equivalent) and the GPU requirement.
+      Not done — not accepted (rejected 2026-10-26), so this stays unticked.
 
 ## Questions / open decisions
 
