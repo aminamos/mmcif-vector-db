@@ -37,10 +37,11 @@ The rest of this page documents the v1 baseline underneath it.
   scores; every hit reports all three scores separately.
 - **RAG:** `rag` emits LLM-ready context blocks per retrieved chain.
 
-## Encoder comparison (measured 2026-10-26)
+## Encoder comparison (v1, preliminary — 47-chain smoke set)
 
 Leave-entry-out top-1 family retrieval; `samples/` = 22 queries,
-`samples_hard/` = 17 queries. Detail: [EVALUATION.md](EVALUATION.md).
+`samples_hard/` = 17 queries. **Preliminary/smoke-set numbers only** — the
+authoritative benchmark is the v3 table below. Detail: [EVALUATION.md](EVALUATION.md).
 
 | Encoder | Dim | samples top-1 | hard top-1 | Runtime | GPU/CPU | Dependency cost |
 |---|---:|---:|---:|---|---|---|
@@ -50,19 +51,33 @@ Leave-entry-out top-1 family retrieval; `samples/` = 22 queries,
 | ESM2-t12 35M (control) | 480 | 22/22 | 17/17 | 0.79 s / 0.72 s | GPU, 232 / 151 MB | pretrained model + transformers |
 | Foldseek (control) | — | 19/22 | 17/17 | ~1.5 s search | CPU | static Foldseek binary |
 
+## Encoder comparison (v3, authoritative — 2,202 SCOPe domains)
+
+Exhaustive Foldseek gold (2,422,451 cross-entry pairs, 100% coverage, nothing
+imputed), superseding the 47-chain numbers above — including a plain retraction
+of the v1-era hits-only correlations (0.72/0.49/0.40, range-restricted). Full
+protocol, CIs, USalign gold-validation caveat, and sensitivity analysis:
+[EVALUATION.md](EVALUATION.md#v3-scope-benchmark-2026-10-26--authoritative-supersedes-the-47-chain-numbers).
+
+| Encoder | Dim | Pearson | Spearman | top-1 | AUPR | AUROC | Cost |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Local (default) | 768 | 0.159 | 0.120 | 0.771 | 0.468 | 0.906 | 17 s CPU, no dependencies |
+| ESM2-t12 35M | 480 | 0.087 | 0.084 | 0.892 | 0.498 | 0.897 | 29 s GPU, 534 MB peak, pretrained model + transformers |
+| NVIDIA La-Proteina AE2, mean-only | 8 | 0.104 | 0.084 | 0.305 | 0.103 | 0.813 | 321 s GPU sharded, 2.1 GB peak, 4.1 GB checkpoints + WSL2/CUDA stack |
+
 ### Should we use the NVIDIA encoder?
 
 (a) **Can we go without it? Yes.** The local encoder equals or beats it
 everywhere that counts, with zero dependencies; it stays the default.
 (b) **Can we build our own encoder? We could** — the contract is one
 function, so a small learned/contrastive encoder is feasible.
-(c) **Should we? No — not now.** The benchmark is 47 chains total, and
-ESM2-t12 off-the-shelf already scores 22/22 + 17/17 at 151–232 MB GPU.
-If retrieval quality ever becomes the bottleneck, the cheap step is
-wiring a small pretrained sequence encoder as an *optional* encoder
-(separate proposal), not training our own and not adopting La-Proteina:
-4.1 GB checkpoints, a Linux/CUDA-only stack, and a 130M encoder whose
-pooled latents merely tie hand-crafted features.
+(c) **Should we? No — not now.** The v3 benchmark (2,202 SCOPe domains,
+exhaustive gold) settles it: the local encoder still stands as the default
+(best TM correlation and AUROC, zero dependencies), ESM2-t12 is the optional
+upgrade path if retrieval quality becomes the bottleneck (best top-1, 0.892 —
+as a separate proposal for an optional pretrained sequence encoder), and
+NVIDIA La-Proteina is out decisively at scale (worst retrieval and
+correlation, heaviest stack). Not training our own either.
 
 ## Run
 

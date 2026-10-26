@@ -1,0 +1,16 @@
+{
+  "n_pairs_sampled": 2000,
+  "seed": 7,
+  "sampling": "uniform random unordered distinct-domain pairs, cross-entry (pdb_id differs), rng=random.Random(7) sample without pair duplication",
+  "usalign_binary": "/root/tmtools/USalign",
+  "usalign_symmetric_tm": "mean of TM-score normalized by Chain_1 and by Chain_2 from a single USalign run per pair",
+  "foldseek_gold_tm": "mean(qtmscore,ttmscore), dedupe by max bits (evaluator convention)",
+  "n_present_in_foldseek_tsv": 2000,
+  "fraction_present_in_foldseek_tsv": 1.0,
+  "n_compared": 2000,
+  "pearson": 0.4783380768503061,
+  "spearman": 0.30378381234541435,
+  "n_usalign_failures": 0,
+  "usalign_failures_sample": {},
+  "wall_seconds_usalign_phase": 16.675877809524536
+}

@@ -3,3 +3,12 @@ __pycache__/
 *.db
 .pytest_cache/
 v2_out/
+v3/domains/
+v3/.cache_entries/
+v3/.shards/
+results_v3/.ae2_shards/
+results_v3/foldseek_gold.tsv
+results_v3/fs_db/
+results_v3/fs_tmp/
+results_v3/fs_out.tsv
+results_v3/fs_out_raw.tsv
