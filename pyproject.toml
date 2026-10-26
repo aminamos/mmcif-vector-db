@@ -5,6 +5,9 @@ description = "MVP: put mmCIF files in a local vector database (text + represent
 requires-python = ">=3.11"
 dependencies = ["gemmi>=0.6", "numpy>=1.26"]
 
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
 [project.optional-dependencies]
 st = ["sentence-transformers>=3.0"]
 

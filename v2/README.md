@@ -16,6 +16,7 @@ with automatic steps only — there is nothing to tune:
 
 ```bash
 uv run python -m v2 build samples/
+uv run --group dev pytest -q   # includes the v2 family test
 ```
 
 That prints plain-English families and writes, into `v2_out/`:

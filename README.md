@@ -6,6 +6,20 @@ RAG over PDB + AFDB: put an mmCIF file in a vector database, considering
 Prompteina / RFD4-Proteina (text prompt -> molecular complex) is the long-term
 direction. This MVP is the retrieval substrate underneath it.
 
+## Start here: v2 (recommended)
+
+One command, nothing to tune — it groups the sample proteins into
+families, leaves unrelated proteins alone, and names one representative
+to look at per family:
+
+```bash
+uv run python -m v2 build samples/
+uv run --group dev pytest -q   # 3 tests
+```
+
+See `v2/README.md` for what v2 fixes over v1 and its sample results.
+The rest of this page documents the v1 baseline underneath it.
+
 ## Design
 
 - **Unit = one protein chain** (AFDB is per-chain; PDB entries split by chain).
@@ -35,13 +49,12 @@ weights are available. The MVP encoder proves the pipeline today, offline.
 
 ```bash
 cd mmcif-vector-db
-uv venv && uv pip install -e . pytest
 uv run mmcif-vec --db mmcif.db ingest examples/
 uv run mmcif-vec --db mmcif.db cluster --k 2
 uv run mmcif-vec --db mmcif.db similar examples/2a3s.cif
 uv run mmcif-vec --db mmcif.db search --text "myocyte nuclear factor"
 uv run mmcif-vec --db mmcif.db rag "myocyte nuclear factor DNA binding"
-uv run pytest -q
+uv run --group dev pytest -q
 ```
 
 Examples: PDB 2A3S / 1N6J / 1EGW, AFDB AF-P42128-F1 (same Foxk1 protein as
