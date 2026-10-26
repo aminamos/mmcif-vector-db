@@ -1,0 +1,140 @@
+{
+ "encoder": "nvidia la-proteina autoencoder (mean latents, concat mean/max/std, L2)",
+ "ckpt": "/mnt/e/development/laproteina-eval/checkpoints_laproteina/AE1_ucond_512.ckpt",
+ "device": "cuda",
+ "total_seconds": 2.120727687999988,
+ "peak_gpu_mem_mb": 1397.57666015625,
+ "n_encoded": 29,
+ "n_failed": 1,
+ "per_chain": {
+  "1A3N:A": {
+   "seconds": 0.5461055259999057,
+   "n_res": 141
+  },
+  "1A3N:B": {
+   "seconds": 0.04767750300004536,
+   "n_res": 145
+  },
+  "1A3N:C": {
+   "seconds": 0.04778004900003907,
+   "n_res": 141
+  },
+  "1A3N:D": {
+   "seconds": 0.026097445999994306,
+   "n_res": 145
+  },
+  "1EGW:E": {
+   "seconds": 0.04883975999996437,
+   "n_res": 71
+  },
+  "1EGW:F": {
+   "seconds": 0.04479476300002716,
+   "n_res": 72
+  },
+  "1EGW:G": {
+   "seconds": 0.0457919560000164,
+   "n_res": 72
+  },
+  "1EGW:H": {
+   "seconds": 0.04536846299993158,
+   "n_res": 71
+  },
+  "1EMA:A": {
+   "seconds": 0.04349509100006799,
+   "n_res": 221
+  },
+  "1HHO:A": {
+   "seconds": 0.045469874999980675,
+   "n_res": 141
+  },
+  "1HHO:B": {
+   "seconds": 0.04478981099998691,
+   "n_res": 146
+  },
+  "1LYZ:A": {
+   "seconds": 0.044409855000026255,
+   "n_res": 129
+  },
+  "1N6J:C": {
+   "seconds": 0.046882100000061655,
+   "n_res": 93
+  },
+  "1N6J:D": {
+   "seconds": 0.04552713099997163,
+   "n_res": 90
+  },
+  "1N6J:E": {
+   "seconds": 0.04647026600002846,
+   "n_res": 26
+  },
+  "1TQE:E": {
+   "seconds": 0.04553167099993516,
+   "n_res": 90
+  },
+  "1TQE:F": {
+   "seconds": 0.047091112999964935,
+   "n_res": 90
+  },
+  "1TQE:G": {
+   "seconds": 0.04511849399989387,
+   "n_res": 23
+  },
+  "1TQE:H": {
+   "seconds": 0.04696535400000812,
+   "n_res": 90
+  },
+  "1TQE:I": {
+   "seconds": 0.04633147499998813,
+   "n_res": 90
+  },
+  "1TQE:J": {
+   "seconds": 0.04526512500001445,
+   "n_res": 23
+  },
+  "1UBQ:A": {
+   "seconds": 0.04560817100002623,
+   "n_res": 76
+  },
+  "2A3S:A": {
+   "seconds": 0.04921994300002552,
+   "n_res": 101
+  },
+  "2D2W:A": {
+   "seconds": 0.04541613599997163,
+   "n_res": 101
+  },
+  "4INS:A": {
+   "seconds": 0.046773371999961455,
+   "n_res": 21
+  },
+  "4INS:B": {
+   "seconds": 0.04610768999998527,
+   "n_res": 30
+  },
+  "4INS:C": {
+   "seconds": 0.04528388599999289,
+   "n_res": 21
+  },
+  "4INS:D": {
+   "seconds": 0.04456068599995433,
+   "n_res": 30
+  },
+  "6LU7:A": {
+   "seconds": 0.05986497599997165,
+   "n_res": 306
+  },
+  "AF-P42128-F1:A": {
+   "seconds": 1.5770999993947044e-05,
+   "n_res": 719,
+   "error": "ValueError: chain has 719 residues, exceeding the 512-residue limit of this checkpoint; use the AE2 checkpoint (<=896 residues) for longer chains instead of truncating"
+  }
+ },
+ "failures": {
+  "AF-P42128-F1:A": "ValueError: chain has 719 residues, exceeding the 512-residue limit of this checkpoint; use the AE2 checkpoint (<=896 residues) for longer chains instead of truncating"
+ },
+ "versions": {
+  "torch": "2.7.0+cu118",
+  "numpy": "1.26.4",
+  "proteinfoundation": "unknown"
+ }
+}

@@ -1,0 +1,28 @@
+| encoder | dim | vectors | family leave-entry-out | family leave-self-out | singletons (excluded) | overall incl. singletons | runtime (s) | peak mem (MB) |
+|---|---|---|---|---|---|---|---|---|---|
+| nvidia_ae1_hard | 24 | 17 | 6/17 = 0.353 | 6/17 = 0.353 | 0 | 0.353 | 1.25 | 1218.9 |
+
+nvidia_ae1_hard leave-entry-out misses:
+  1A5R:A (ubiquitin-like) -> 1YFP:B (GFP-like)
+  1A6N:A (globin-myoglobin) -> 1F0B:A (GFP-like)
+  1AKI:A (lysozyme) -> 1MBN:A (globin-myoglobin)
+  1F0B:A (GFP-like) -> 1REX:A (lysozyme)
+  1GFL:B (GFP-like) -> 1LZ1:A (lysozyme)
+  1LZ1:A (lysozyme) -> 1GFL:B (GFP-like)
+  1NDD:A (ubiquitin-like) -> 1MBN:A (globin-myoglobin)
+  1NDD:B (ubiquitin-like) -> 1LZ1:A (lysozyme)
+  1NDD:C (ubiquitin-like) -> 1GFL:A (GFP-like)
+  1NDD:D (ubiquitin-like) -> 1REX:A (lysozyme)
+  1WM3:A (ubiquitin-like) -> 1MBN:A (globin-myoglobin)
+
+Cross-entry same-family pairwise sequence identity (Needleman-Wunsch):
+| family | pairs | mean | min | max |
+|---|---|---|---|---|
+| Foxk1 | 3 | 0.427 | 0.140 | 1.000 |
+| GFP-like | 8 | 0.968 | 0.961 | 0.991 |
+| MEF2 | 54 | 0.550 | 0.129 | 1.000 |
+| globin-alpha | 2 | 1.000 | 1.000 | 1.000 |
+| globin-beta | 2 | 0.993 | 0.993 | 0.993 |
+| globin-myoglobin | 3 | 0.991 | 0.987 | 1.000 |
+| lysozyme | 3 | 0.739 | 0.609 | 1.000 |
+| ubiquitin-like | 9 | 0.257 | 0.222 | 0.365 |

@@ -1,0 +1,137 @@
+{
+ "encoder": "nvidia la-proteina autoencoder (mean latents, concat mean/max/std, L2)",
+ "ckpt": "/mnt/e/development/laproteina-eval/checkpoints_laproteina/AE2_ucond_800.ckpt",
+ "device": "cuda",
+ "total_seconds": 1.692992849999996,
+ "peak_gpu_mem_mb": 3248.7529296875,
+ "n_encoded": 30,
+ "n_failed": 0,
+ "per_chain": {
+  "1A3N:A": {
+   "seconds": 0.21822187999998732,
+   "n_res": 141
+  },
+  "1A3N:B": {
+   "seconds": 0.04321755000000849,
+   "n_res": 145
+  },
+  "1A3N:C": {
+   "seconds": 0.02098728500004654,
+   "n_res": 141
+  },
+  "1A3N:D": {
+   "seconds": 0.04253640600006747,
+   "n_res": 145
+  },
+  "1EGW:E": {
+   "seconds": 0.08190291799996885,
+   "n_res": 71
+  },
+  "1EGW:F": {
+   "seconds": 0.07980814500001543,
+   "n_res": 72
+  },
+  "1EGW:G": {
+   "seconds": 0.07892722300005062,
+   "n_res": 72
+  },
+  "1EGW:H": {
+   "seconds": 0.07837117299993679,
+   "n_res": 71
+  },
+  "1EMA:A": {
+   "seconds": 0.038009697999996206,
+   "n_res": 221
+  },
+  "1HHO:A": {
+   "seconds": 0.020076614000004156,
+   "n_res": 141
+  },
+  "1HHO:B": {
+   "seconds": 0.02053174200000285,
+   "n_res": 146
+  },
+  "1LYZ:A": {
+   "seconds": 0.02081126600000971,
+   "n_res": 129
+  },
+  "1N6J:C": {
+   "seconds": 0.0201038839999228,
+   "n_res": 93
+  },
+  "1N6J:D": {
+   "seconds": 0.019705981000015527,
+   "n_res": 90
+  },
+  "1N6J:E": {
+   "seconds": 0.019031344999916655,
+   "n_res": 26
+  },
+  "1TQE:E": {
+   "seconds": 0.020254388000012113,
+   "n_res": 90
+  },
+  "1TQE:F": {
+   "seconds": 0.019791202999954294,
+   "n_res": 90
+  },
+  "1TQE:G": {
+   "seconds": 0.02033186099993145,
+   "n_res": 23
+  },
+  "1TQE:H": {
+   "seconds": 0.019389683999975205,
+   "n_res": 90
+  },
+  "1TQE:I": {
+   "seconds": 0.01929654399998526,
+   "n_res": 90
+  },
+  "1TQE:J": {
+   "seconds": 0.018619217999912507,
+   "n_res": 23
+  },
+  "1UBQ:A": {
+   "seconds": 0.019852612000022418,
+   "n_res": 76
+  },
+  "2A3S:A": {
+   "seconds": 0.054002813000010974,
+   "n_res": 101
+  },
+  "2D2W:A": {
+   "seconds": 0.07969794400003138,
+   "n_res": 101
+  },
+  "4INS:A": {
+   "seconds": 0.04494353699999465,
+   "n_res": 21
+  },
+  "4INS:B": {
+   "seconds": 0.019632525000019996,
+   "n_res": 30
+  },
+  "4INS:C": {
+   "seconds": 0.01899538800000755,
+   "n_res": 21
+  },
+  "4INS:D": {
+   "seconds": 0.019241592999946988,
+   "n_res": 30
+  },
+  "6LU7:A": {
+   "seconds": 0.03657559400005539,
+   "n_res": 306
+  },
+  "AF-P42128-F1:A": {
+   "seconds": 0.17466993100003947,
+   "n_res": 719
+  }
+ },
+ "failures": {},
+ "versions": {
+  "torch": "2.7.0+cu118",
+  "numpy": "1.26.4",
+  "proteinfoundation": "unknown"
+ }
+}

@@ -1,0 +1,128 @@
+{
+ "samples": {
+  "dataset": "samples",
+  "family_queries": 22,
+  "leave_entry_out_correct": 19,
+  "leave_entry_out_accuracy": 0.8636363636363636,
+  "leave_self_out_correct": 19,
+  "leave_self_out_accuracy": 0.8636363636363636,
+  "n_chains_labelled": 30,
+  "singleton_queries": 8,
+  "overall_incl_singletons_accuracy": 0.6333333333333333,
+  "ranking": "bits desc, deduped by max bits over NMR models",
+  "misses": [
+   [
+    "1N6J:E",
+    "MEF2",
+    null,
+    null
+   ],
+   [
+    "1TQE:G",
+    "MEF2",
+    null,
+    null
+   ],
+   [
+    "1TQE:J",
+    "MEF2",
+    null,
+    null
+   ]
+  ]
+ },
+ "hard": {
+  "dataset": "hard",
+  "family_queries": 17,
+  "leave_entry_out_correct": 17,
+  "leave_entry_out_accuracy": 1.0,
+  "leave_self_out_correct": 17,
+  "leave_self_out_accuracy": 1.0,
+  "n_chains_labelled": 17,
+  "singleton_queries": 0,
+  "overall_incl_singletons_accuracy": 1.0,
+  "ranking": "bits desc, deduped by max bits over NMR models",
+  "misses": []
+ },
+ "combined": {
+  "dataset": "combined",
+  "family_queries": 39,
+  "leave_entry_out_correct": 28,
+  "leave_entry_out_accuracy": 0.717948717948718,
+  "leave_self_out_correct": 34,
+  "leave_self_out_accuracy": 0.8717948717948718,
+  "n_chains_labelled": 47,
+  "singleton_queries": 8,
+  "overall_incl_singletons_accuracy": 0.5957446808510638,
+  "ranking": "bits desc, deduped by max bits over NMR models",
+  "misses": [
+   [
+    "1N6J:E",
+    "MEF2",
+    null,
+    null
+   ],
+   [
+    "1TQE:G",
+    "MEF2",
+    null,
+    null
+   ],
+   [
+    "1TQE:J",
+    "MEF2",
+    null,
+    null
+   ],
+   [
+    "1AKI:A",
+    "lysozyme",
+    "1LYZ:A",
+    null
+   ],
+   [
+    "1F0B:A",
+    "GFP-like",
+    "1EMA:A",
+    null
+   ],
+   [
+    "1NDD:A",
+    "ubiquitin-like",
+    "1UBQ:A",
+    null
+   ],
+   [
+    "1NDD:B",
+    "ubiquitin-like",
+    "1UBQ:A",
+    null
+   ],
+   [
+    "1NDD:C",
+    "ubiquitin-like",
+    "1UBQ:A",
+    null
+   ],
+   [
+    "1NDD:D",
+    "ubiquitin-like",
+    "1UBQ:A",
+    null
+   ],
+   [
+    "1YFP:A",
+    "GFP-like",
+    "1EMA:A",
+    null
+   ],
+   [
+    "1YFP:B",
+    "GFP-like",
+    "1EMA:A",
+    null
+   ]
+  ]
+ },
+ "n_pairs_deduped": 739
+}
