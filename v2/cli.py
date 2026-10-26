@@ -12,10 +12,12 @@ from __future__ import annotations
 import argparse, json
 from pathlib import Path
 from .core import load_chains, find_families, representative
+from .complexes import build_complexes, describe
 
 def build(paths, out_dir) -> dict:
     chains = load_chains(paths)
     families = find_families(chains)
+    comps, complex_groups = build_complexes(paths, families)
     out = Path(out_dir); out.mkdir(parents=True, exist_ok=True)
     data, lines, pml = [], [], ["# Optional: open in PyMOL to view one representative per family"]
     for n, fam in enumerate(families, 1):
@@ -34,7 +36,21 @@ def build(paths, out_dir) -> dict:
     (out / "families.txt").write_text("\n".join(lines) + "\n")
     (out / "view_families.pml").write_text("\n".join(pml) + "\nshow cartoon\n")
     print("\n".join(lines))
-    print(f"\nWrote {out}/families.txt, families.json, view_families.pml")
+    # complex layer: recipes from families, grouped by recipe agreement
+    cdata = [{"complex_group": n, "size": len(g),
+              "members": [{"entry_id": c["entry_id"], "recipe": describe(c),
+                           "chains": c["chains"]} for c in g]}
+             for n, g in enumerate(complex_groups, 1)]
+    (out / "complexes.json").write_text(json.dumps(cdata, indent=2))
+    clines = []
+    for n, g in enumerate(complex_groups, 1):
+        head = f"Complex group {n}" if len(g) > 1 else f"Complex on its own {n}"
+        clines.append(head + ": " + "; ".join(
+            f"{c['entry_id']} ({describe(c)})" for c in g))
+    (out / "complexes.txt").write_text("\n".join(clines) + "\n")
+    print("\n" + ("\n".join(clines) if clines else "No multi-chain complexes found."))
+    print(f"\nWrote {out}/families.txt, families.json, view_families.pml, complexes.txt, complexes.json")
+    result["complex_groups"] = cdata
     return result
 
 def main(argv=None):

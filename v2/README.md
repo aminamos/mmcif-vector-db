@@ -24,6 +24,12 @@ That prints plain-English families and writes, into `v2_out/`:
 - `families.txt` — the families, in words
 - `families.json` — the same, for code
 - `view_families.pml` — optional viewer script (see below)
+- `complexes.txt` / `complexes.json` — if the files are complexes:
+  each one described by which families it contains and in how many
+  copies (its recipe), grouped with complexes whose recipes agree.
+  Copy numbers come from the un-deduped chains, so stoichiometry
+  survives. Note this describes chains present in the deposited file;
+  symmetry-generated assembly copies are not expanded.
 
 ## Do we need PyMOL?
 

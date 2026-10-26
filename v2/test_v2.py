@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1]))
 from v2.core import load_chains, find_families
+from v2.complexes import build_complexes, describe
 
 SAMPLES = Path(__file__).parents[1] / "samples"
 
@@ -26,3 +27,16 @@ def test_v2_families():
     for uid in ("1LYZ:A", "1EMA:A", "1UBQ:A", "6LU7:A"):
         fam = fams[_group_of(fams, uid)]
         assert len(fam) == 1, (uid, [c.uid for c in fam])
+
+def test_v2_complexes():
+    chains = load_chains([SAMPLES])
+    fams = find_families(chains)
+    comps, groups = build_complexes([SAMPLES], fams)
+    by_entry = {c["entry_id"]: c for c in comps}
+    # 1A3N deposits 2 alpha + 2 beta; 1HHO deposits 1 + 1 (the rest is
+    # symmetry-generated). Same recipe in different proportions.
+    assert "Family 3 x2" in describe(by_entry["1A3N"])
+    assert set(by_entry["1A3N"]["recipe"]) == set(by_entry["1HHO"]["recipe"])
+    # and the two haemoglobins group as the same kind of complex
+    joined = [g for g in groups if len(g) > 1 and g[0]["entry_id"] in ("1A3N", "1HHO")]
+    assert joined and {c["entry_id"] for c in joined[0]} == {"1A3N", "1HHO"}

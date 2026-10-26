@@ -18,21 +18,27 @@ from mmcif_vec.parse import parse_cif
 from mmcif_vec.features import struct_vector
 from mmcif_vec.db import cosine
 
-def load_chains(paths) -> list:
-    """Parse files/dirs, drop duplicate chains within each entry."""
+def iter_files(paths) -> list:
     files = []
     for p in paths:
         p = Path(p)
         files += sorted(p.rglob("*.cif")) if p.is_dir() else [p]
+    return files
+
+def load_chains(paths, dedupe: bool = True, min_len: int = 20) -> list:
+    """Parse files/dirs. dedupe=True drops duplicate chains within each
+    entry (for family finding); dedupe=False keeps every copy (needed to
+    count how many copies of a family a complex contains)."""
     seen, out = set(), []
-    for f in files:
+    for f in iter_files(paths):
         for r in parse_cif(f):
-            if len(r.sequence) < 20:
+            if len(r.sequence) < min_len:
                 continue
-            key = (r.entry_id, r.sequence)
-            if key in seen:
-                continue
-            seen.add(key)
+            if dedupe:
+                key = (r.entry_id, r.sequence)
+                if key in seen:
+                    continue
+                seen.add(key)
             out.append(r)
     return out
 
