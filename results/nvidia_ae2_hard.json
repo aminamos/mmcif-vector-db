@@ -1,0 +1,85 @@
+{
+ "encoder": "nvidia la-proteina autoencoder (mean latents, concat mean/max/std, L2)",
+ "ckpt": "/mnt/e/development/laproteina-eval/checkpoints_laproteina/AE2_ucond_800.ckpt",
+ "device": "cuda",
+ "total_seconds": 1.370676239000204,
+ "peak_gpu_mem_mb": 1218.86767578125,
+ "n_encoded": 17,
+ "n_failed": 0,
+ "per_chain": {
+  "1A5R:A": {
+   "seconds": 0.21997579300000325,
+   "n_res": 103
+  },
+  "1A6N:A": {
+   "seconds": 0.07633027900010347,
+   "n_res": 151
+  },
+  "1AKI:A": {
+   "seconds": 0.07727113000009922,
+   "n_res": 129
+  },
+  "1F0B:A": {
+   "seconds": 0.06717496000010215,
+   "n_res": 225
+  },
+  "1GFL:A": {
+   "seconds": 0.04420289999984561,
+   "n_res": 230
+  },
+  "1GFL:B": {
+   "seconds": 0.021358728999985033,
+   "n_res": 230
+  },
+  "1LZ1:A": {
+   "seconds": 0.07667689199979577,
+   "n_res": 130
+  },
+  "1MBC:A": {
+   "seconds": 0.07604982999987442,
+   "n_res": 153
+  },
+  "1MBN:A": {
+   "seconds": 0.0588943279999512,
+   "n_res": 153
+  },
+  "1NDD:A": {
+   "seconds": 0.08004279900001166,
+   "n_res": 74
+  },
+  "1NDD:B": {
+   "seconds": 0.08093720099986967,
+   "n_res": 76
+  },
+  "1NDD:C": {
+   "seconds": 0.08097178000002714,
+   "n_res": 73
+  },
+  "1NDD:D": {
+   "seconds": 0.08043358899999475,
+   "n_res": 73
+  },
+  "1REX:A": {
+   "seconds": 0.021697600999914357,
+   "n_res": 130
+  },
+  "1WM3:A": {
+   "seconds": 0.01979050499994628,
+   "n_res": 72
+  },
+  "1YFP:A": {
+   "seconds": 0.07006089199990129,
+   "n_res": 224
+  },
+  "1YFP:B": {
+   "seconds": 0.07010765099994387,
+   "n_res": 224
+  }
+ },
+ "failures": {},
+ "versions": {
+  "torch": "2.7.0+cu118",
+  "numpy": "1.26.4",
+  "proteinfoundation": "unknown"
+ }
+}

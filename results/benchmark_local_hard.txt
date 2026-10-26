@@ -1,0 +1,18 @@
+| encoder | dim | vectors | family leave-entry-out | family leave-self-out | singletons (excluded) | overall incl. singletons | runtime (s) | peak mem (MB) |
+|---|---|---|---|---|---|---|---|---|---|
+| local_hard | 768 | 17 | 16/17 = 0.941 | 17/17 = 1.000 | 0 | 0.941 | 0.04 | - |
+
+local_hard leave-entry-out misses:
+  1NDD:B (ubiquitin-like) -> 1GFL:B (GFP-like)
+
+Cross-entry same-family pairwise sequence identity (Needleman-Wunsch):
+| family | pairs | mean | min | max |
+|---|---|---|---|---|
+| Foxk1 | 3 | 0.427 | 0.140 | 1.000 |
+| GFP-like | 8 | 0.968 | 0.961 | 0.991 |
+| MEF2 | 54 | 0.550 | 0.129 | 1.000 |
+| globin-alpha | 2 | 1.000 | 1.000 | 1.000 |
+| globin-beta | 2 | 0.993 | 0.993 | 0.993 |
+| globin-myoglobin | 3 | 0.991 | 0.987 | 1.000 |
+| lysozyme | 3 | 0.739 | 0.609 | 1.000 |
+| ubiquitin-like | 9 | 0.257 | 0.222 | 0.365 |

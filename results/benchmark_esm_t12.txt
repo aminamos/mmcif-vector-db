@@ -1,0 +1,16 @@
+| encoder | dim | vectors | family leave-entry-out | family leave-self-out | singletons (excluded) | overall incl. singletons | runtime (s) | peak mem (MB) |
+|---|---|---|---|---|---|---|---|---|---|
+| esm_t12 | 480 | 30 | 22/22 = 1.000 | 22/22 = 1.000 | 8 | 0.733 | 0.79 | 232.4 |
+esm_t12 singleton queries (no correct top-1 exists): 1EMA:A, 1LYZ:A, 1UBQ:A, 4INS:A, 4INS:B, 4INS:C, 4INS:D, 6LU7:A
+
+Cross-entry same-family pairwise sequence identity (Needleman-Wunsch):
+| family | pairs | mean | min | max |
+|---|---|---|---|---|
+| Foxk1 | 3 | 0.427 | 0.140 | 1.000 |
+| GFP-like | 8 | 0.968 | 0.961 | 0.991 |
+| MEF2 | 54 | 0.550 | 0.129 | 1.000 |
+| globin-alpha | 2 | 1.000 | 1.000 | 1.000 |
+| globin-beta | 2 | 0.993 | 0.993 | 0.993 |
+| globin-myoglobin | 3 | 0.991 | 0.987 | 1.000 |
+| lysozyme | 3 | 0.739 | 0.609 | 1.000 |
+| ubiquitin-like | 9 | 0.257 | 0.222 | 0.365 |

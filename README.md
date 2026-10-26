@@ -37,13 +37,32 @@ The rest of this page documents the v1 baseline underneath it.
   scores; every hit reports all three scores separately.
 - **RAG:** `rag` emits LLM-ready context blocks per retrieved chain.
 
-## NVIDIA autoencoder?
+## Encoder comparison (measured 2026-10-26)
 
-Not the default — see `mmcif_vec/nvidia_encoder.py`. The La-Proteina /
-RFD4-Proteina autoencoder (explicit CA + per-residue latents for sequence and
-side chains, 256M params in RFD4) is a drop-in encoder swap behind the same
-`chain -> vector` contract, once clustering/RAG value is proven and CUDA +
-weights are available. The MVP encoder proves the pipeline today, offline.
+Leave-entry-out top-1 family retrieval; `samples/` = 22 queries,
+`samples_hard/` = 17 queries. Detail: [EVALUATION.md](EVALUATION.md).
+
+| Encoder | Dim | samples top-1 | hard top-1 | Runtime | GPU/CPU | Dependency cost |
+|---|---:|---:|---:|---|---|---|
+| Local (default) | 768 | 21/22 | 16/17 | 0.04 s | CPU | none |
+| NVIDIA La-Proteina AE2, mean-only | 8 | 19/22 | 16/17 | ~1.7 s encode | GPU, ~3.2 GB peak | 4.1 GB checkpoints, WSL2/Linux CUDA stack outside repo |
+| NVIDIA AE2, mean+max+std | 24 | 10/22 | 8/17 | ~1.7 s encode | GPU, ~3.2 GB peak | same as above |
+| ESM2-t12 35M (control) | 480 | 22/22 | 17/17 | 0.79 s / 0.72 s | GPU, 232 / 151 MB | pretrained model + transformers |
+| Foldseek (control) | — | 19/22 | 17/17 | ~1.5 s search | CPU | static Foldseek binary |
+
+### Should we use the NVIDIA encoder?
+
+(a) **Can we go without it? Yes.** The local encoder equals or beats it
+everywhere that counts, with zero dependencies; it stays the default.
+(b) **Can we build our own encoder? We could** — the contract is one
+function, so a small learned/contrastive encoder is feasible.
+(c) **Should we? No — not now.** The benchmark is 47 chains total, and
+ESM2-t12 off-the-shelf already scores 22/22 + 17/17 at 151–232 MB GPU.
+If retrieval quality ever becomes the bottleneck, the cheap step is
+wiring a small pretrained sequence encoder as an *optional* encoder
+(separate proposal), not training our own and not adopting La-Proteina:
+4.1 GB checkpoints, a Linux/CUDA-only stack, and a 130M encoder whose
+pooled latents merely tie hand-crafted features.
 
 ## Run
 
@@ -62,6 +81,6 @@ Examples: PDB 2A3S / 1N6J / 1EGW, AFDB AF-P42128-F1 (same Foxk1 protein as
 
 ## Next (not MVP)
 
-- Swap encoder -> NVIDIA La-Proteina/RFD4-Proteina autoencoder latents
+- Optional pretrained sequence encoder (e.g. ESM2-t12) if retrieval quality becomes the bottleneck — separate proposal; NVIDIA La-Proteina evaluated and rejected (above)
 - Scale store -> sqlite-vec / LanceDB; bulk PDB + AFDB ingest
 - SIFTS UniProt/Pfam metadata joins; Prompteina text<->latent alignment

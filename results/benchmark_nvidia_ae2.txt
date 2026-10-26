@@ -1,0 +1,30 @@
+| encoder | dim | vectors | family leave-entry-out | family leave-self-out | singletons (excluded) | overall incl. singletons | runtime (s) | peak mem (MB) |
+|---|---|---|---|---|---|---|---|---|---|
+| nvidia_ae2 | 24 | 30 | 10/22 = 0.455 | 10/22 = 0.455 | 8 | 0.333 | 1.69 | 3248.8 |
+
+nvidia_ae2 leave-entry-out misses:
+  1A3N:A (globin-alpha) -> 1TQE:E (MEF2)
+  1A3N:B (globin-beta) -> 1TQE:E (MEF2)
+  1A3N:C (globin-alpha) -> 1N6J:C (MEF2)
+  1EGW:F (MEF2) -> 1A3N:B (globin-beta)
+  1EGW:G (MEF2) -> 1EMA:A (None)
+  1HHO:A (globin-alpha) -> 2A3S:A (Foxk1)
+  1HHO:B (globin-beta) -> 1N6J:D (MEF2)
+  1N6J:E (MEF2) -> 1HHO:B (globin-beta)
+  1TQE:F (MEF2) -> 2A3S:A (Foxk1)
+  1TQE:G (MEF2) -> 1A3N:C (globin-alpha)
+  2A3S:A (Foxk1) -> 1TQE:F (MEF2)
+  2D2W:A (Foxk1) -> 1N6J:C (MEF2)
+nvidia_ae2 singleton queries (no correct top-1 exists): 1EMA:A, 1LYZ:A, 1UBQ:A, 4INS:A, 4INS:B, 4INS:C, 4INS:D, 6LU7:A
+
+Cross-entry same-family pairwise sequence identity (Needleman-Wunsch):
+| family | pairs | mean | min | max |
+|---|---|---|---|---|
+| Foxk1 | 3 | 0.427 | 0.140 | 1.000 |
+| GFP-like | 8 | 0.968 | 0.961 | 0.991 |
+| MEF2 | 54 | 0.550 | 0.129 | 1.000 |
+| globin-alpha | 2 | 1.000 | 1.000 | 1.000 |
+| globin-beta | 2 | 0.993 | 0.993 | 0.993 |
+| globin-myoglobin | 3 | 0.991 | 0.987 | 1.000 |
+| lysozyme | 3 | 0.739 | 0.609 | 1.000 |
+| ubiquitin-like | 9 | 0.257 | 0.222 | 0.365 |

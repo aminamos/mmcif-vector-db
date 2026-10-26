@@ -6,11 +6,20 @@ coordinates. Handling, all deliberate:
 - representative atom = `CA`, from `ATOM` rows with a standard/modified
   amino-acid `label_comp_id` (excludes calcium ions whose atom is also
   named CA, waters, and ligands — all HETATM)
+- every atom of such a residue is also retained (`Residue.atoms`, row
+  order, first-seen per atom name), with the same first-model /
+  zero-occupancy / altloc rules applied per atom, not only per CA
 - alternate locations and duplicate residues kept once (first seen)
 - zero-occupancy atoms skipped
 - residue numbering is retained in both schemes: `label_seq_id` and
   `auth_seq_id` (+ insertion code), because they often differ and SIFTS
   mapping is defined between them
+
+Note on MSE: selenomethionine is in `AA3` (as M), but that only helps
+rows labelled `ATOM`. In real PDB files MSE is usually a `HETATM` row,
+so it is excluded by the ATOM-only rule exactly like a ligand; the
+AA3 entry matters for files (e.g. some AFDB/custom CIFs) that emit
+MSE as ATOM.
 """
 from __future__ import annotations
 import re
@@ -23,15 +32,27 @@ AA3 = {"ALA":"A","ARG":"R","ASN":"N","ASP":"D","CYS":"C","GLN":"Q","GLU":"E","GL
 "TRP":"W","TYR":"Y","VAL":"V","MSE":"M","SEC":"U"}
 
 @dataclass
+class Atom:
+    name: str
+    element: str
+    coord: tuple
+    b_factor: float | None = None
+    occupancy: float | None = None
+
+@dataclass
 class Residue:
     label_seq_id: int | None
     auth_seq_id: str
     ins_code: str
     comp_id: str
     aa: str
+    # CA coordinate; if a residue has no CA atom, the first retained
+    # atom's coordinate (so `coord`/`ca_coords` always exist per residue).
     coord: tuple
     b_factor: float | None = None
     occupancy: float | None = None
+    # All retained atoms of this residue, in _atom_site row order.
+    atoms: list = field(default_factory=list)
 
 @dataclass
 class ChainRecord:
@@ -103,11 +124,13 @@ def parse_cif(path: str | Path) -> list[ChainRecord]:
     cols = {tag: _col(b, f"_atom_site.{tag}") for tag in (
         "group_PDB", "label_asym_id", "auth_asym_id", "label_comp_id", "label_alt_id",
         "label_seq_id", "auth_seq_id", "pdbx_PDB_ins_code", "Cartn_x", "Cartn_y",
-        "Cartn_z", "occupancy", "B_iso_or_equiv", "pdbx_PDB_model_num", "label_entity_id")}
+        "Cartn_z", "occupancy", "B_iso_or_equiv", "pdbx_PDB_model_num", "label_entity_id",
+        "type_symbol")}
     chains: dict[str, dict] = {}
     first_model = None
     for i in range(n):
-        if atom_id[i].strip().strip('"') != "CA":
+        atom_name = atom_id[i].strip().strip('"')
+        if not atom_name:
             continue
         if cols["group_PDB"] is not None and _get(cols["group_PDB"], i) != "ATOM":
             continue
@@ -126,20 +149,40 @@ def parse_cif(path: str | Path) -> list[ChainRecord]:
         alt = _get(cols["label_alt_id"], i, ".")
         if alt not in (".", "?", "A"):
             continue
+        try:
+            coord = (float(_get(cols["Cartn_x"], i)), float(_get(cols["Cartn_y"], i)),
+                     float(_get(cols["Cartn_z"], i)))
+        except (TypeError, ValueError):
+            continue
         cid = _get(cols["label_asym_id"], i, "A")
         label_seq = _int_or_none(_get(cols["label_seq_id"], i))
+        auth_seq = _get(cols["auth_seq_id"], i)
         ins = _get(cols["pdbx_PDB_ins_code"], i, "?")
-        ch = chains.setdefault(cid, {"res": [], "seen": set(), "entity": _get(cols["label_entity_id"], i),
+        ch = chains.setdefault(cid, {"res": [], "seen": {}, "entity": _get(cols["label_entity_id"], i),
                                      "auth": _get(cols["auth_asym_id"], i, cid)})
-        key = (label_seq, ins)
-        if key in ch["seen"]:
-            continue
-        ch["seen"].add(key)
-        ch["res"].append(Residue(
-            label_seq, _get(cols["auth_seq_id"], i), ins, comp, aa,
-            (float(_get(cols["Cartn_x"], i)), float(_get(cols["Cartn_y"], i)),
-             float(_get(cols["Cartn_z"], i))),
-            _float_or_none(_get(cols["B_iso_or_equiv"], i)), occ))
+        # Residue identity: as before, (label_seq_id, ins_code). When
+        # label_seq_id is missing ('.' in many files), that pair would
+        # collapse distinct residues, so fall back to auth numbering +
+        # comp as a safety discriminator.
+        if label_seq is not None:
+            key = (label_seq, ins)
+        else:
+            key = (None, auth_seq, ins, comp)
+        b_factor = _float_or_none(_get(cols["B_iso_or_equiv"], i))
+        res = ch["seen"].get(key)
+        if res is None:
+            res = Residue(label_seq, auth_seq, ins, comp, aa, coord, b_factor, occ, [])
+            ch["seen"][key] = res
+            ch["res"].append(res)
+        if any(a.name == atom_name for a in res.atoms):
+            continue  # dedup per (residue, atom_name): first seen wins
+        res.atoms.append(Atom(atom_name,
+                              _get(cols["type_symbol"], i, "").strip().strip('"'),
+                              coord, b_factor, occ))
+        if atom_name == "CA":
+            # Representative coord / B / occupancy stay CA-derived, as
+            # before all-atom retention (byte-identical CA behaviour).
+            res.coord, res.b_factor, res.occupancy = coord, b_factor, occ
     out = []
     for cid, ch in chains.items():
         rec = ChainRecord(entry_id, cid, _source(entry_id, path), title, method,

@@ -1,0 +1,212 @@
+{
+ "description": "Hard set: same-fold families with low pairwise sequence identity, downloaded from RCSB and verified with mmcif_vec.parse.parse_cif (all-atom). Families also relate to bundled samples entries as recorded in notes.",
+ "entries": [
+  {
+   "entry": "1A5R",
+   "chains": [
+    "A"
+   ],
+   "family": "ubiquitin-like",
+   "source": "https://files.rcsb.org/download/1A5R.cif",
+   "n_res": {
+    "A": 103
+   },
+   "title": "'STRUCTURE DETERMINATION OF THE SMALL UBIQUITIN-RELATED MODIFIER SUMO-1, NMR, 10 STRUCTURES'"
+  },
+  {
+   "entry": "1A6N",
+   "chains": [
+    "A"
+   ],
+   "family": "globin-myoglobin",
+   "source": "https://files.rcsb.org/download/1A6N.cif",
+   "n_res": {
+    "A": 151
+   },
+   "title": "'DEOXY-MYOGLOBIN, ATOMIC RESOLUTION'"
+  },
+  {
+   "entry": "1AKI",
+   "chains": [
+    "A"
+   ],
+   "family": "lysozyme",
+   "source": "https://files.rcsb.org/download/1AKI.cif",
+   "n_res": {
+    "A": 129
+   },
+   "title": "'THE STRUCTURE OF THE ORTHORHOMBIC FORM OF HEN EGG-WHITE LYSOZYME AT 1.5 ANGSTROMS RESOLUTION'"
+  },
+  {
+   "entry": "1F0B",
+   "chains": [
+    "A"
+   ],
+   "family": "GFP-like",
+   "source": "https://files.rcsb.org/download/1F0B.cif",
+   "n_res": {
+    "A": 225
+   },
+   "title": "'CRYSTAL STRUCTURE OF THE GREEN FLUORESCENT PROTEIN (GFP) VARIANT YFP-H148Q'"
+  },
+  {
+   "entry": "1GFL",
+   "chains": [
+    "A",
+    "B"
+   ],
+   "family": "GFP-like",
+   "source": "https://files.rcsb.org/download/1GFL.cif",
+   "n_res": {
+    "A": 230,
+    "B": 230
+   },
+   "title": "'STRUCTURE OF GREEN FLUORESCENT PROTEIN'"
+  },
+  {
+   "entry": "1LZ1",
+   "chains": [
+    "A"
+   ],
+   "family": "lysozyme",
+   "source": "https://files.rcsb.org/download/1LZ1.cif",
+   "n_res": {
+    "A": 130
+   },
+   "title": "'REFINEMENT OF HUMAN LYSOZYME AT 1.5 ANGSTROMS RESOLUTION. ANALYSIS OF NON-BONDED AND HYDROGEN-BOND INTERACTIONS'"
+  },
+  {
+   "entry": "1MBC",
+   "chains": [
+    "A"
+   ],
+   "family": "globin-myoglobin",
+   "source": "https://files.rcsb.org/download/1MBC.cif",
+   "n_res": {
+    "A": 153
+   },
+   "title": "'X-RAY STRUCTURE AND REFINEMENT OF CARBON-MONOXY (FE II)-MYOGLOBIN AT 1.5 ANGSTROMS RESOLUTION'"
+  },
+  {
+   "entry": "1MBN",
+   "chains": [
+    "A"
+   ],
+   "family": "globin-myoglobin",
+   "source": "https://files.rcsb.org/download/1MBN.cif",
+   "n_res": {
+    "A": 153
+   },
+   "title": "'The stereochemistry of the protein myoglobin'"
+  },
+  {
+   "entry": "1NDD",
+   "chains": [
+    "A",
+    "B",
+    "C",
+    "D"
+   ],
+   "family": "ubiquitin-like",
+   "source": "https://files.rcsb.org/download/1NDD.cif",
+   "n_res": {
+    "A": 74,
+    "B": 76,
+    "C": 73,
+    "D": 73
+   },
+   "title": "'STRUCTURE OF NEDD8'"
+  },
+  {
+   "entry": "1REX",
+   "chains": [
+    "A"
+   ],
+   "family": "lysozyme",
+   "source": "https://files.rcsb.org/download/1REX.cif",
+   "n_res": {
+    "A": 130
+   },
+   "title": "'NATIVE HUMAN LYSOZYME'"
+  },
+  {
+   "entry": "1WM3",
+   "chains": [
+    "A"
+   ],
+   "family": "ubiquitin-like",
+   "source": "https://files.rcsb.org/download/1WM3.cif",
+   "n_res": {
+    "A": 72
+   },
+   "title": "'Crystal structure of human SUMO-2 protein'"
+  },
+  {
+   "entry": "1YFP",
+   "chains": [
+    "A",
+    "B"
+   ],
+   "family": "GFP-like",
+   "source": "https://files.rcsb.org/download/1YFP.cif",
+   "n_res": {
+    "A": 224,
+    "B": 224
+   },
+   "title": "'STRUCTURE OF YELLOW-EMISSION VARIANT OF GFP'"
+  }
+ ],
+ "notes": {
+  "ubiquitin-like": {
+   "pairwise_identity_first_chain": {
+    "1A5R:A vs 1NDD:A": 0.255,
+    "1A5R:A vs 1WM3:A": 0.365,
+    "1NDD:A vs 1WM3:A": 0.228
+   },
+   "identity_vs_bundled_samples": {
+    "1A5R:A vs 1UBQ:A": 0.293,
+    "1NDD:A vs 1UBQ:A": 0.553,
+    "1WM3:A vs 1UBQ:A": 0.241
+   }
+  },
+  "globin-myoglobin": {
+   "pairwise_identity_first_chain": {
+    "1A6N:A vs 1MBC:A": 0.987,
+    "1A6N:A vs 1MBN:A": 0.987,
+    "1MBC:A vs 1MBN:A": 1.0
+   },
+   "identity_vs_bundled_samples": {
+    "1A6N:A vs 1A3N:A": 0.308,
+    "1A6N:A vs 1HHO:A": 0.308,
+    "1MBC:A vs 1A3N:A": 0.309,
+    "1MBC:A vs 1HHO:A": 0.309,
+    "1MBN:A vs 1A3N:A": 0.309,
+    "1MBN:A vs 1HHO:A": 0.309
+   }
+  },
+  "lysozyme": {
+   "pairwise_identity_first_chain": {
+    "1AKI:A vs 1LZ1:A": 0.609,
+    "1AKI:A vs 1REX:A": 0.609,
+    "1LZ1:A vs 1REX:A": 1.0
+   },
+   "identity_vs_bundled_samples": {
+    "1AKI:A vs 1LYZ:A": 1.0,
+    "1LZ1:A vs 1LYZ:A": 0.609,
+    "1REX:A vs 1LYZ:A": 0.609
+   }
+  },
+  "GFP-like": {
+   "pairwise_identity_first_chain": {
+    "1F0B:A vs 1GFL:A": 0.961,
+    "1F0B:A vs 1YFP:A": 0.991,
+    "1GFL:A vs 1YFP:A": 0.961
+   },
+   "identity_vs_bundled_samples": {
+    "1F0B:A vs 1EMA:A": 0.956,
+    "1GFL:A vs 1EMA:A": 0.961,
+    "1YFP:A vs 1EMA:A": 0.964
+   }
+  }
+ }
+}

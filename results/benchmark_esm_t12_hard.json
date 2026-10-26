@@ -1,0 +1,80 @@
+{
+ "results": [
+  {
+   "name": "esm_t12_hard",
+   "dim": 480,
+   "n_vectors": 17,
+   "n_queries_labelled": 17,
+   "family_queries": 17,
+   "leave_entry_out_correct": 17,
+   "leave_entry_out_accuracy": 1.0,
+   "leave_self_out_correct": 17,
+   "leave_self_out_accuracy": 1.0,
+   "singleton_queries": 0,
+   "singleton_uids": [],
+   "overall_incl_singletons_accuracy": 1.0,
+   "misses": [],
+   "runtime_s": 0.7207930739998574,
+   "peak_mem_mb": 151.3525390625,
+   "mean_chain_s": 0.03379064447056086
+  }
+ ],
+ "identity": [
+  {
+   "family": "Foxk1",
+   "pairs": 3,
+   "mean": 0.4269819193324061,
+   "min": 0.1404728789986092,
+   "max": 1.0
+  },
+  {
+   "family": "GFP-like",
+   "pairs": 8,
+   "mean": 0.9684299516908212,
+   "min": 0.9608695652173913,
+   "max": 0.9911111111111112
+  },
+  {
+   "family": "MEF2",
+   "pairs": 54,
+   "mean": 0.5501515242167639,
+   "min": 0.12903225806451613,
+   "max": 1.0
+  },
+  {
+   "family": "globin-alpha",
+   "pairs": 2,
+   "mean": 1.0,
+   "min": 1.0,
+   "max": 1.0
+  },
+  {
+   "family": "globin-beta",
+   "pairs": 2,
+   "mean": 0.9931506849315068,
+   "min": 0.9931506849315068,
+   "max": 0.9931506849315068
+  },
+  {
+   "family": "globin-myoglobin",
+   "pairs": 3,
+   "mean": 0.9912854030501089,
+   "min": 0.9869281045751634,
+   "max": 1.0
+  },
+  {
+   "family": "lysozyme",
+   "pairs": 3,
+   "mean": 0.7393483709273183,
+   "min": 0.6090225563909775,
+   "max": 1.0
+  },
+  {
+   "family": "ubiquitin-like",
+   "pairs": 9,
+   "mean": 0.2570396707527509,
+   "min": 0.2222222222222222,
+   "max": 0.36538461538461536
+  }
+ ]
+}
