@@ -1,0 +1,108 @@
+{
+ "shards": [
+  {
+   "shard": "shard_000",
+   "wall_seconds": 37,
+   "returncode": 0,
+   "n_encoded": 250,
+   "n_failed": 0,
+   "failures": {},
+   "peak_gpu_mem_mb": 2131.62744140625,
+   "total_seconds_sidecar": 11.773428496000179,
+   "npz_keys": 250
+  },
+  {
+   "shard": "shard_001",
+   "wall_seconds": 35,
+   "returncode": 0,
+   "n_encoded": 250,
+   "n_failed": 0,
+   "failures": {},
+   "peak_gpu_mem_mb": 2043.1220703125,
+   "total_seconds_sidecar": 12.036469599999691,
+   "npz_keys": 250
+  },
+  {
+   "shard": "shard_002",
+   "wall_seconds": 33,
+   "returncode": 0,
+   "n_encoded": 250,
+   "n_failed": 0,
+   "failures": {},
+   "peak_gpu_mem_mb": 1954.99853515625,
+   "total_seconds_sidecar": 12.85202448200016,
+   "npz_keys": 250
+  },
+  {
+   "shard": "shard_003",
+   "wall_seconds": 36,
+   "returncode": 0,
+   "n_encoded": 250,
+   "n_failed": 0,
+   "failures": {},
+   "peak_gpu_mem_mb": 2077.70654296875,
+   "total_seconds_sidecar": 14.830837597000027,
+   "npz_keys": 250
+  },
+  {
+   "shard": "shard_004",
+   "wall_seconds": 36,
+   "returncode": 0,
+   "n_encoded": 250,
+   "n_failed": 0,
+   "failures": {},
+   "peak_gpu_mem_mb": 2077.70654296875,
+   "total_seconds_sidecar": 15.754356293,
+   "npz_keys": 250
+  },
+  {
+   "shard": "shard_005",
+   "wall_seconds": 37,
+   "returncode": 0,
+   "n_encoded": 250,
+   "n_failed": 0,
+   "failures": {},
+   "peak_gpu_mem_mb": 1972.66748046875,
+   "total_seconds_sidecar": 16.09238358499988,
+   "npz_keys": 250
+  },
+  {
+   "shard": "shard_006",
+   "wall_seconds": 36,
+   "returncode": 0,
+   "n_encoded": 250,
+   "n_failed": 0,
+   "failures": {},
+   "peak_gpu_mem_mb": 2000.67919921875,
+   "total_seconds_sidecar": 15.732213768999827,
+   "npz_keys": 250
+  },
+  {
+   "shard": "shard_007",
+   "wall_seconds": 38,
+   "returncode": 0,
+   "n_encoded": 250,
+   "n_failed": 0,
+   "failures": {},
+   "peak_gpu_mem_mb": 2130.62841796875,
+   "total_seconds_sidecar": 17.559363484000187,
+   "npz_keys": 250
+  },
+  {
+   "shard": "shard_008",
+   "wall_seconds": 33,
+   "returncode": 0,
+   "n_encoded": 202,
+   "n_failed": 0,
+   "failures": {},
+   "peak_gpu_mem_mb": 2122.71240234375,
+   "total_seconds_sidecar": 12.05389047000017,
+   "npz_keys": 202
+  }
+ ],
+ "total_wall_seconds_shards": 321,
+ "total_seconds_sidecars": 128.68496777600012,
+ "max_peak_gpu_mem_mb": 2131.62744140625,
+ "total_failures": 0,
+ "merged_vectors": 2202
+}

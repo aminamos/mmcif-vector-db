@@ -1,0 +1,56 @@
+{
+  "source_pairs": "results_v3/tm_pairs.tsv",
+  "n_pairs": 2000,
+  "sampling": "2,000 uniform random unordered distinct-domain cross-entry pairs, seed 7 (tm_validation.py)",
+  "usalign_tm": {
+    "mean": 0.279662955,
+    "median": 0.278005,
+    "fraction_ge_0.7": 0.0035
+  },
+  "foldseek_vs_usalign": {
+    "n_pairs": 2000,
+    "pearson": 0.4783380768503061,
+    "spearman": 0.30378381234541435
+  },
+  "encoders": {
+    "local": {
+      "dim": 768,
+      "vs_usalign": {
+        "n_pairs": 2000,
+        "pearson": 0.16575136443020302,
+        "spearman": 0.13755500255906827
+      },
+      "vs_foldseek_same_pairs": {
+        "n_pairs": 2000,
+        "pearson": 0.16065948159719412,
+        "spearman": 0.12295376818423945
+      }
+    },
+    "ae2": {
+      "dim": 8,
+      "vs_usalign": {
+        "n_pairs": 2000,
+        "pearson": 0.04962198265184624,
+        "spearman": 0.0379941690813761
+      },
+      "vs_foldseek_same_pairs": {
+        "n_pairs": 2000,
+        "pearson": 0.07495406776206222,
+        "spearman": 0.06147200121573238
+      }
+    },
+    "esm": {
+      "dim": 480,
+      "vs_usalign": {
+        "n_pairs": 2000,
+        "pearson": 0.061385672850266804,
+        "spearman": 0.049426937533937225
+      },
+      "vs_foldseek_same_pairs": {
+        "n_pairs": 2000,
+        "pearson": 0.07113107666842937,
+        "spearman": 0.05265512848038408
+      }
+    }
+  }
+}
