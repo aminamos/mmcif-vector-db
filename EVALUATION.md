@@ -123,3 +123,122 @@ contract. ESM2-t12 (22/22 + 17/17 at 151–232 MB GPU) is the cheap
 upgrade path if retrieval quality ever becomes the bottleneck — as a
 separate proposal for an optional pretrained sequence encoder, not a
 reason to adopt La-Proteina or to train our own on a 47-chain benchmark.
+
+## v3 SCOPe benchmark (2026-10-26) — authoritative, supersedes the 47-chain numbers
+
+Artifacts: `results_v3/evaluation.{json,md}` (headline), `results_v3/tm_validation.json`
+plus `results_v3/tm_pairs.tsv` (USalign validation), `results_v3/encoder_vs_usalign.json`
+(recomputed by `results_v3/tools/encoder_vs_usalign.py`), encoder vectors
+`results_v3/{local,ae2,esm_t12}.npz`, harness `v3/evaluate_v3.py`, dataset builder
+`scripts/build_v3_dataset.py`, unit set `v3/manifest.json`.
+
+### Dataset
+
+SCOPe 2.01 (`dir.cla.scope.2.01-stable`) domains — defined residue segments, not
+whole entries — sampled with seed 42: **2,202 domains / 310 superfamilies / 235
+folds / 1,669 PDB entries, lengths 40–511 residues**. Filters were fixed a priori
+(in `v3/manifest.json`): single auth chain, length 40–512, superfamilies with
+≥4 eligible domains, cap 8 per superfamily, standard amino acids only. Sliced
+CIFs live in `v3/domains/` (~202 MB, gitignored, regenerable via
+`scripts/build_v3_dataset.py`; the builder is resumable — existing sliced files
+are re-validated and reused — and deterministic: same seed + cache ⇒ same
+manifest domain list).
+
+### Protocol (7 points, as implemented in `v3/evaluate_v3.py`)
+
+1. **Unit set fixed a priori** by the manifest before any encoding or gold
+   computation; every unordered pair of distinct domains is a potential pair.
+2. **Gold is exhaustive**: Foldseek `easy-search --exhaustive-search` all-vs-all
+   over the 2,202 sliced domains.
+3. **100% coverage, nothing imputed**: 2,423,301/2,423,301 pairs covered
+   (headline cross-entry subset: 2,422,451/2,422,451). Missing gold would be
+   excluded and only reported as coverage — in the event, there is none.
+4. **Symmetrisation**: gold TM = mean(`qtmscore`, `ttmscore`); duplicate rows
+   for an unordered pair de-duplicated keeping max `bits`.
+5. **Pearson and Spearman** both reported (numpy-only implementations, average
+   ranks for ties).
+6. **Protein-bootstrap CIs**: 95% percentile CIs from 1,000 resamples over
+   domains (not pairs), seed 42.
+7. **Headline = cross-entry pairs only** (domains sharing a PDB entry excluded);
+   the including-same-entry analysis is reported as a sensitivity check.
+
+Gold distribution (headline): mean symmetric TM 0.110, TM ≥ 0.7 fraction 0.17%.
+Labels for retrieval/classification are same-superfamily (6,190 positive vs
+2,416,261 negative headline pairs); retrieval is leave-entry-out top-1 over
+2,139 queries (63 queries excluded for having no cross-entry same-superfamily
+candidate, never scored as misses).
+
+### Headline results (cross-entry, vs Foldseek gold)
+
+| Encoder | Dim | Pearson [95% CI] | Spearman [95% CI] | top-1 | AUPR | AUROC |
+|---|---:|---|---|---:|---:|---:|
+| Local `combined_vector` | 768 | 0.159 [0.138, 0.181] | 0.120 [0.090, 0.150] | 0.771 | 0.468 | 0.906 |
+| NVIDIA La-Proteina AE2, mean-only | 8 | 0.104 [0.095, 0.114] | 0.084 [0.074, 0.096] | 0.305 | 0.103 | 0.813 |
+| ESM2-t12 35M, mean-pooled | 480 | 0.087 [0.068, 0.107] | 0.084 [0.064, 0.104] | 0.892 | 0.498 | 0.897 |
+
+Sensitivity (same-entry pairs included, 2,423,301 pairs): local Pearson 0.164 /
+Spearman 0.121; AE2 0.108 / 0.085; ESM 0.091 / 0.084 — conclusions unchanged.
+
+### Gold validation caveat (USalign)
+
+Foldseek TM is a proxy. On 2,000 uniform random cross-entry pairs (seed 7),
+USalign (compiled from Zhang-group source after the prebuilt binary 404'd;
+symmetric TM = mean of the two length-normalised scores) agrees with Foldseek
+gold at only **Pearson 0.478 / Spearman 0.304**. Foldseek TM is therefore a
+noisy proxy on this mostly-unrelated population, and that noise attenuates
+every encoder-vs-gold correlation above; the encoder *rankings* are what the
+headline table supports, not the absolute r values as measures of encoder
+quality. USalign TM on these random pairs: mean 0.280, median 0.278,
+TM ≥ 0.7 in only 0.35% — the correlation task is dominated by unrelated pairs,
+which is why all correlations are low while retrieval (below) tells a
+different story.
+
+Encoder cosine vs USalign on the same 2,000 pairs (independently recomputed,
+`results_v3/encoder_vs_usalign.json`), with vs-Foldseek on identical pairs for
+comparison:
+
+| Encoder | vs USalign Pearson | vs USalign Spearman | vs Foldseek Pearson | vs Foldseek Spearman |
+|---|---:|---:|---:|---:|
+| Local | 0.166 | 0.138 | 0.161 | 0.123 |
+| AE2 (8-d) | 0.050 | 0.038 | 0.075 | 0.061 |
+| ESM2-t12 | 0.061 | 0.049 | 0.071 | 0.053 |
+
+The ordering (local > ESM > AE2 on TM correlation) is the same against the
+independent USalign gold as against Foldseek.
+
+### Runtime, storage, resumability
+
+All runs local on one RTX 4070 SUPER @ 120 W — no rented GPUs, no new GPU
+error events. Local encoder: 17 s on CPU for all 2,202 domains. AE2: 321 s
+wall sharded (129 s encode-only, 2.1 GB peak GPU). ESM2-t12: 29 s (534 MB
+peak). Storage: sliced domains ~202 MB and the 2.6 GB entry cache
+(`v3/.cache_entries/`) are gitignored and deletable/regenerable; the 270 MB
+Foldseek gold TSV and Foldseek DB/temp dirs are likewise gitignored
+(regenerable via `results_v3/tools/run_foldseek.sh`). Committed artifacts are
+small: NPZs 7.0 MB (local) / 4.6 MB (ESM) / 0.6 MB (AE2), manifest 1.3 MB,
+everything else ≤ 53 KB. The dataset builder, AE2 sharding, and USalign
+validation are all resumable.
+
+### Retraction of the v1-era correlations
+
+The 47-chain hits-only correlations reported during the v1/NVIDIA evaluation
+(local 0.72, AE2 0.49, ESM 0.40) were **range-restricted estimates**: they were
+computed only over pairs Foldseek already reported as hits on a 47-chain set,
+which inflates correlation by construction. They are **retracted and
+superseded** by the v3 numbers above (exhaustive pairs, 100% coverage, no
+hit-selection). The v1 top-1 retrieval tables elsewhere in this document stand
+as small-set retrieval results, but no correlation claim should be quoted
+from the 47-chain era.
+
+### Verdict
+
+**The local encoder remains the default**: best TM correlation against both
+gold standards, best AUROC (0.906), competitive AUPR, zero dependencies, 17 s
+on CPU. **ESM2-t12 is the retrieval winner** (top-1 0.892, best AUPR 0.498)
+and is the named optional-upgrade candidate if retrieval quality becomes the
+bottleneck — an optional pretrained sequence encoder, adopted only as a
+separate proposal. **La-Proteina AE2 is rejected decisively at scale**: worst
+retrieval (top-1 0.305, AUPR 0.103) and worst-or-tied-worst correlation of the
+three, with by far the heaviest stack (4.1 GB checkpoints, WSL2/CUDA venv,
+321 s sharded encode). The small-set tie that kept AE2 alive in the v1
+evaluation does not survive a 2,202-domain benchmark.
