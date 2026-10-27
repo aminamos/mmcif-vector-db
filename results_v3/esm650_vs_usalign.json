@@ -1,0 +1,14 @@
+{
+  "source_pairs": "results_v3/tm_pairs.tsv",
+  "n_pairs": 2000,
+  "sampling": "2,000 uniform random unordered distinct-domain cross-entry pairs, seed 7 (tm_validation.py)",
+  "encoder": "esm650",
+  "model": "facebook/esm2_t33_650M_UR50D",
+  "vectors": "results_v3/esm2_t33_650m.npz",
+  "dim": 1280,
+  "vs_usalign": {
+    "n_pairs": 2000,
+    "pearson": 0.0522863305017613,
+    "spearman": 0.06795135097541478
+  }
+}

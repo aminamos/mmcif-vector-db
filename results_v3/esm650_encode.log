@@ -1,0 +1,43 @@
+todo 2202 / 2202
+Some weights of EsmModel were not initialized from the model checkpoint at facebook/esm2_t33_650M_UR50D and are newly initialized: ['esm.pooler.dense.bias', 'esm.pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+progress 112/2202 elapsed=44.3s
+progress 224/2202 elapsed=47.0s
+progress 336/2202 elapsed=49.3s
+progress 448/2202 elapsed=51.2s
+progress 560/2202 elapsed=53.1s
+progress 672/2202 elapsed=54.8s
+progress 784/2202 elapsed=56.5s
+progress 896/2202 elapsed=58.2s
+progress 1008/2202 elapsed=59.8s
+progress 1120/2202 elapsed=61.5s
+progress 1232/2202 elapsed=63.2s
+progress 1344/2202 elapsed=64.9s
+progress 1456/2202 elapsed=66.7s
+progress 1568/2202 elapsed=68.6s
+progress 1680/2202 elapsed=70.7s
+progress 1792/2202 elapsed=72.7s
+progress 1904/2202 elapsed=74.8s
+progress 2016/2202 elapsed=77.1s
+progress 2128/2202 elapsed=79.5s
+progress 2202/2202 elapsed=81.8s
+{
+ "encoder": "ESM2 t33 650M (facebook/esm2_t33_650M_UR50D) mean-pooled residue last_hidden_state, L2-normalised",
+ "model": "facebook/esm2_t33_650M_UR50D",
+ "device": "cuda",
+ "batch_size": 16,
+ "dtype": "float16 autocast (inference_mode, TF32 on); stored float32 L2-normalised",
+ "total_seconds": 83.63686815901019,
+ "wall_time_s": 83.63686907901138,
+ "peak_gpu_mem_mb": 4866.71728515625,
+ "peak_vram_mb": 4866.71728515625,
+ "n_encoded": 2202,
+ "n_expected": 2202,
+ "failures": {},
+ "dim": 1280,
+ "versions": {
+  "torch": "2.7.0+cu118",
+  "transformers": "4.48.3"
+ }
+}
+ESM650 DONE
