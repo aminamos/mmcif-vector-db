@@ -1,0 +1,19 @@
+{
+ "encoder": "ESM2 t33 650M (facebook/esm2_t33_650M_UR50D) mean-pooled residue last_hidden_state, L2-normalised",
+ "model": "facebook/esm2_t33_650M_UR50D",
+ "device": "cuda",
+ "batch_size": 16,
+ "dtype": "float16 autocast (inference_mode, TF32 on); stored float32 L2-normalised",
+ "total_seconds": 83.63686815901019,
+ "wall_time_s": 83.63686907901138,
+ "peak_gpu_mem_mb": 4866.71728515625,
+ "peak_vram_mb": 4866.71728515625,
+ "n_encoded": 2202,
+ "n_expected": 2202,
+ "failures": {},
+ "dim": 1280,
+ "versions": {
+  "torch": "2.7.0+cu118",
+  "transformers": "4.48.3"
+ }
+}

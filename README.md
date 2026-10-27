@@ -63,6 +63,7 @@ protocol, CIs, USalign gold-validation caveat, and sensitivity analysis:
 |---|---:|---:|---:|---:|---:|---:|---|
 | Local (default) | 768 | 0.159 | 0.120 | 0.771 | 0.468 | 0.906 | 17 s CPU, no dependencies |
 | ESM2-t12 35M | 480 | 0.087 | 0.084 | 0.892 | 0.498 | 0.897 | 29 s GPU, 534 MB peak, pretrained model + transformers |
+| ESM2-t33 650M | 1280 | 0.057 | 0.034 | 0.903 | 0.528 | 0.895 | 84 s GPU, 4.87 GB peak, pretrained model + transformers |
 | NVIDIA La-Proteina AE2, mean-only | 8 | 0.104 | 0.084 | 0.305 | 0.103 | 0.813 | 321 s GPU sharded, 2.1 GB peak, 4.1 GB checkpoints + WSL2/CUDA stack |
 
 Stratified (gold TM ≥ 0.5 pairs, n=6,866): local P/S 0.770/0.800, ESM2-t12 0.600/0.832 — see EVALUATION.md.
