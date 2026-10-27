@@ -1,0 +1,260 @@
+{
+  "n_domains": 2202,
+  "protocol": {
+    "gold_symmetrization": "mean(qtmscore, ttmscore), dedupe by max bits",
+    "missing_gold": "excluded, never imputed; reported as coverage",
+    "headline": "cross-PDB-entry pairs only; sensitivity including same-entry pairs reported per encoder",
+    "bootstrap": "over domains (proteins), 95% percentile CI, see module docstring",
+    "seed": 42,
+    "n_bootstrap": 1000
+  },
+  "gold": {
+    "headline_excluding_same_entry": {
+      "n_pairs_total": 2422451,
+      "n_pairs_covered": 2422451,
+      "coverage_fraction": 1.0,
+      "coverage_percent": 100.0,
+      "fraction_tm_ge_0.7": 0.0017341940043369298,
+      "mean_tm": 0.11031337496630478,
+      "tm_percentiles": {
+        "5": 0.03734,
+        "25": 0.067915,
+        "50": 0.09759999999999999,
+        "75": 0.13641,
+        "95": 0.2191
+      }
+    },
+    "including_same_entry": {
+      "n_pairs_total": 2423301,
+      "n_pairs_covered": 2423301,
+      "coverage_fraction": 1.0,
+      "coverage_percent": 100.0,
+      "fraction_tm_ge_0.7": 0.0020368910011591625,
+      "mean_tm": 0.11058044032520103,
+      "tm_percentiles": {
+        "5": 0.037345,
+        "25": 0.067925,
+        "50": 0.09762499999999999,
+        "75": 0.13646,
+        "95": 0.21944999999999998
+      }
+    },
+    "n_pairs_same_entry_universe": 850,
+    "loader_stats": {
+      "n_rows": 4848804,
+      "n_rows_self_ignored": 2202,
+      "n_rows_unknown_domain_ignored": 0,
+      "n_duplicate_rows": 2423301,
+      "n_pairs_covered_distinct": 2423301
+    }
+  },
+  "encoders": [
+    {
+      "name": "local",
+      "dim": 768,
+      "n_vectors_total": 2202,
+      "n_vectors_in_manifest": 2202,
+      "vector_coverage": {
+        "n_domains_with_vector": 2202,
+        "n_domains": 2202,
+        "fraction": 1.0
+      },
+      "gold_coverage_headline": {
+        "n_pairs_covered": 2422451,
+        "n_pairs_universe": 2422451,
+        "fraction": 1.0
+      },
+      "n_pairs_evaluated_headline": 2422451,
+      "pearson": 0.1592341684026462,
+      "spearman": 0.11967496555588993,
+      "bootstrap": {
+        "pearson_ci95": [
+          0.13821001538820651,
+          0.1813362986045359
+        ],
+        "spearman_ci95": [
+          0.0895223872679252,
+          0.14995239912001643
+        ],
+        "n_bootstrap_requested": 1000,
+        "n_bootstrap_valid_pearson": 1000,
+        "n_bootstrap_valid_spearman": 1000,
+        "seed": 42
+      },
+      "aupr": 0.4680244058248086,
+      "auroc": 0.9060444450603278,
+      "n_pairs_same_superfamily_headline": 6190,
+      "n_pairs_diff_superfamily_headline": 2416261,
+      "strata": {
+        "candidate_high": {
+          "n_pairs": 6866,
+          "pearson": 0.7700670875876522,
+          "spearman": 0.7995283877895916
+        },
+        "candidate_mid": {
+          "n_pairs": 33648,
+          "pearson": 0.6001282966370738,
+          "spearman": 0.4191899151933355
+        },
+        "same_superfamily": {
+          "n_pairs": 6190,
+          "pearson": 0.7183557325217252,
+          "spearman": 0.8052433703514922
+        }
+      },
+      "sensitivity": {
+        "n_pairs_evaluated": 2423301,
+        "n_pairs_universe": 2423301,
+        "n_pairs_gold_covered": 2423301,
+        "pearson": 0.1638202163598934,
+        "spearman": 0.12051574128373518
+      },
+      "retrieval_top1": {
+        "accuracy": 0.7709209911173446,
+        "n_correct": 1649,
+        "n_queries": 2139,
+        "n_excluded_no_cross_entry_family_member": 63,
+        "n_excluded_no_vector": 0,
+        "n_excluded_no_cross_entry_candidate": 0
+      }
+    },
+    {
+      "name": "ae2",
+      "dim": 8,
+      "n_vectors_total": 2202,
+      "n_vectors_in_manifest": 2202,
+      "vector_coverage": {
+        "n_domains_with_vector": 2202,
+        "n_domains": 2202,
+        "fraction": 1.0
+      },
+      "gold_coverage_headline": {
+        "n_pairs_covered": 2422451,
+        "n_pairs_universe": 2422451,
+        "fraction": 1.0
+      },
+      "n_pairs_evaluated_headline": 2422451,
+      "pearson": 0.10388068231683958,
+      "spearman": 0.08448053171040151,
+      "bootstrap": {
+        "pearson_ci95": [
+          0.0947617888986437,
+          0.11405381193674949
+        ],
+        "spearman_ci95": [
+          0.07363003992310672,
+          0.09643175599973237
+        ],
+        "n_bootstrap_requested": 1000,
+        "n_bootstrap_valid_pearson": 1000,
+        "n_bootstrap_valid_spearman": 1000,
+        "seed": 42
+      },
+      "aupr": 0.10323245043816458,
+      "auroc": 0.8126456963498214,
+      "n_pairs_same_superfamily_headline": 6190,
+      "n_pairs_diff_superfamily_headline": 2416261,
+      "strata": {
+        "candidate_high": {
+          "n_pairs": 6866,
+          "pearson": 0.5192908494706546,
+          "spearman": 0.5726997678111122
+        },
+        "candidate_mid": {
+          "n_pairs": 33648,
+          "pearson": 0.4151753693831049,
+          "spearman": 0.2898844484400537
+        },
+        "same_superfamily": {
+          "n_pairs": 6190,
+          "pearson": 0.4879431489056645,
+          "spearman": 0.575982317083773
+        }
+      },
+      "sensitivity": {
+        "n_pairs_evaluated": 2423301,
+        "n_pairs_universe": 2423301,
+        "n_pairs_gold_covered": 2423301,
+        "pearson": 0.1081113998949627,
+        "spearman": 0.08522959253096772
+      },
+      "retrieval_top1": {
+        "accuracy": 0.30481533426834967,
+        "n_correct": 652,
+        "n_queries": 2139,
+        "n_excluded_no_cross_entry_family_member": 63,
+        "n_excluded_no_vector": 0,
+        "n_excluded_no_cross_entry_candidate": 0
+      }
+    },
+    {
+      "name": "esm",
+      "dim": 480,
+      "n_vectors_total": 2202,
+      "n_vectors_in_manifest": 2202,
+      "vector_coverage": {
+        "n_domains_with_vector": 2202,
+        "n_domains": 2202,
+        "fraction": 1.0
+      },
+      "gold_coverage_headline": {
+        "n_pairs_covered": 2422451,
+        "n_pairs_universe": 2422451,
+        "fraction": 1.0
+      },
+      "n_pairs_evaluated_headline": 2422451,
+      "pearson": 0.08689533614339091,
+      "spearman": 0.08358733836454021,
+      "bootstrap": {
+        "pearson_ci95": [
+          0.06814367845696113,
+          0.10687218714017112
+        ],
+        "spearman_ci95": [
+          0.06375835923783113,
+          0.10364745247343782
+        ],
+        "n_bootstrap_requested": 1000,
+        "n_bootstrap_valid_pearson": 1000,
+        "n_bootstrap_valid_spearman": 1000,
+        "seed": 42
+      },
+      "aupr": 0.4980252854641695,
+      "auroc": 0.8969510405099861,
+      "n_pairs_same_superfamily_headline": 6190,
+      "n_pairs_diff_superfamily_headline": 2416261,
+      "strata": {
+        "candidate_high": {
+          "n_pairs": 6866,
+          "pearson": 0.5995717798513367,
+          "spearman": 0.8322705526701634
+        },
+        "candidate_mid": {
+          "n_pairs": 33648,
+          "pearson": 0.38884024218017105,
+          "spearman": 0.34329602706304985
+        },
+        "same_superfamily": {
+          "n_pairs": 6190,
+          "pearson": 0.5575514661769336,
+          "spearman": 0.824068019317805
+        }
+      },
+      "sensitivity": {
+        "n_pairs_evaluated": 2423301,
+        "n_pairs_universe": 2423301,
+        "n_pairs_gold_covered": 2423301,
+        "pearson": 0.09076979025294117,
+        "spearman": 0.08447675630247078
+      },
+      "retrieval_top1": {
+        "accuracy": 0.8920056100981767,
+        "n_correct": 1908,
+        "n_queries": 2139,
+        "n_excluded_no_cross_entry_family_member": 63,
+        "n_excluded_no_vector": 0,
+        "n_excluded_no_cross_entry_candidate": 0
+      }
+    }
+  ]
+}

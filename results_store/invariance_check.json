@@ -1,0 +1,9 @@
+{
+  "local_struct_maxdiff": 1.862645149230957e-09,
+  "ae2_chain_cosine": 0.8621390420660604,
+  "ae2_latent_maxdrift": 4.976182756390948,
+  "rotation_seed": 12345,
+  "ae2_latent_maxdrift_definition": "max over residues of L2 norm of (per-residue latent mean difference), 8-d",
+  "ae2_latent_maxabsdiff": 3.705459713935852,
+  "gpu_power_limit_w_verified": 120.0
+}

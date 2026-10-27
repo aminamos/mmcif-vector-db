@@ -484,6 +484,16 @@ def _cosine_for_pairs(mat: np.ndarray, pair_i, pair_j) -> np.ndarray:
     return out
 
 
+def _stratum_metrics(cos: np.ndarray, gold_tm: np.ndarray) -> dict:
+    return {
+        "n_pairs": int(cos.size),
+        "pearson": _clean(pearson(cos, gold_tm)),
+        "spearman": _clean(spearman(cos, gold_tm)),
+    }
+
+
+
+
 def evaluate_encoder(name, vectors, domain_ids, domains: dict[str, DomainInfo],
                      gold: GoldPairs, headline_mask: np.ndarray,
                      n_universe_headline: int, n_universe_all: int,
@@ -540,6 +550,11 @@ def evaluate_encoder(name, vectors, domain_ids, domains: dict[str, DomainInfo],
             "n_pairs_evaluated_headline": 0, "pearson": None, "spearman": None,
             "bootstrap": None, "sensitivity": None, "retrieval_top1": None,
             "aupr": None, "auroc": None,
+            "strata": {
+                "candidate_high": _stratum_metrics(np.zeros(0), np.zeros(0)),
+                "candidate_mid": _stratum_metrics(np.zeros(0), np.zeros(0)),
+                "same_superfamily": _stratum_metrics(np.zeros(0), np.zeros(0)),
+            },
         })
         return result
 
@@ -572,6 +587,14 @@ def evaluate_encoder(name, vectors, domain_ids, domains: dict[str, DomainInfo],
         "n_pairs_same_superfamily_headline": int(labels.sum()) if ei.size else 0,
         "n_pairs_diff_superfamily_headline": int(labels.size - labels.sum()) if ei.size else 0,
     })
+    # ---- strata over headline evaluated pairs (no bootstrap) -----------
+    # Subsets of the exact headline pair arrays above; computing them does
+    # not mutate ex/ey, so headline numbers are unchanged.
+    result["strata"] = {
+        "candidate_high": _stratum_metrics(ex[ey >= 0.5], ey[ey >= 0.5]),
+        "candidate_mid": _stratum_metrics(ex[ey >= 0.3], ey[ey >= 0.3]),
+        "same_superfamily": _stratum_metrics(ex[labels], ey[labels]),
+    }
 
     # ---- sensitivity (including same-entry pairs) -----------------------
     sens_mask = both
@@ -750,6 +773,21 @@ def render_markdown(results: dict) -> str:
             f"| {_fmt(enc.get('pearson'))} {p_ci} | {_fmt(enc.get('spearman'))} {s_ci} "
             f"| {_fmt(retr.get('accuracy'))} | {_fmt(enc.get('aupr'))} | {_fmt(enc.get('auroc'))} |"
         )
+    lines += [
+        "",
+        "Strata (headline pairs only, no bootstrap):",
+        "",
+        "| encoder | stratum | n_pairs | Pearson | Spearman |",
+        "|---|---|---|---|---|",
+    ]
+    for enc in results["encoders"]:
+        strata = enc.get("strata") or {}
+        for stratum in ("candidate_high", "candidate_mid", "same_superfamily"):
+            s = strata.get(stratum) or {}
+            lines.append(
+                f"| {enc['name']} | {stratum} | {s.get('n_pairs', 0)} "
+                f"| {_fmt(s.get('pearson'))} | {_fmt(s.get('spearman'))} |"
+            )
     lines.append("")
     return "\n".join(lines)
 
