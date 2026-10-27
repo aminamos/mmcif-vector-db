@@ -27,6 +27,13 @@ def _load_ann(path):
     except RuntimeError as e:
         raise SystemExit(str(e)) from e
 
+def _load_faiss(path):
+    from .faiss_ann import FaissIndex
+    try:
+        return FaissIndex.load(path)
+    except RuntimeError as e:
+        raise SystemExit(str(e)) from e
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="mmcif-vec")
     ap.add_argument("--db", default="mmcif.db")
@@ -37,8 +44,12 @@ def main(argv=None):
     b.add_argument("--num-sub-vectors", type=int, default=96)
     b.add_argument("--index-type", default="IVF_FLAT")
     b.add_argument("--nprobes", type=int, default=128)
-    s = sub.add_parser("similar"); s.add_argument("cif"); s.add_argument("--k", type=int, default=5); s.add_argument("--ann")
-    s = sub.add_parser("search"); s.add_argument("--text"); s.add_argument("--seq"); s.add_argument("--k", type=int, default=5); s.add_argument("--ann")
+    bf = sub.add_parser("build-faiss"); bf.add_argument("--out", required=True)
+    bf.add_argument("--factory", default="ivf_flat", choices=["ivf_flat", "ivf_pq"])
+    bf.add_argument("--nlist", type=int, default=None)
+    bf.add_argument("--pq-m", type=int, default=96)
+    s = sub.add_parser("similar"); s.add_argument("cif"); s.add_argument("--k", type=int, default=5); s.add_argument("--ann"); s.add_argument("--faiss"); s.add_argument("--pool", type=int, default=None)
+    s = sub.add_parser("search"); s.add_argument("--text"); s.add_argument("--seq"); s.add_argument("--k", type=int, default=5); s.add_argument("--ann"); s.add_argument("--faiss"); s.add_argument("--pool", type=int, default=None)
     s = sub.add_parser("cluster"); s.add_argument("--k", type=int, default=3)
     s = sub.add_parser("rag"); s.add_argument("text"); s.add_argument("--k", type=int, default=5)
     sub.add_parser("stats")
@@ -56,16 +67,26 @@ def main(argv=None):
         except RuntimeError as e:
             raise SystemExit(str(e)) from e
         print(json.dumps(idx.meta, indent=2))
+    elif a.cmd == "build-faiss":
+        from .faiss_ann import FaissIndex
+        try:
+            idx = FaissIndex.build(db, a.out, index_factory=a.factory,
+                                   nlist=a.nlist, pq_m=a.pq_m)
+        except (RuntimeError, ValueError) as e:
+            raise SystemExit(str(e)) from e
+        print(json.dumps(idx.meta, indent=2))
     elif a.cmd == "similar":
         recs = parse_cif(a.cif)
         if not recs: raise SystemExit("no chains parsed")
         r = recs[0]
-        ann = _load_ann(a.ann) if a.ann else None
-        hits = search(db, q_seq=r.sequence, q_struct=struct_vector(r.ca_coords), k=a.k, ann=ann)
+        if a.ann and a.faiss: raise SystemExit("pass only one of --ann / --faiss")
+        ann = _load_ann(a.ann) if a.ann else _load_faiss(a.faiss) if a.faiss else None
+        hits = search(db, q_seq=r.sequence, q_struct=struct_vector(r.ca_coords), k=a.k, ann=ann, candidate_pool=a.pool)
         print(json.dumps(hits, indent=2))
     elif a.cmd == "search":
-        ann = _load_ann(a.ann) if a.ann else None
-        print(json.dumps(search(db, q_seq=a.seq, q_text=a.text, k=a.k, ann=ann), indent=2))
+        if a.ann and a.faiss: raise SystemExit("pass only one of --ann / --faiss")
+        ann = _load_ann(a.ann) if a.ann else _load_faiss(a.faiss) if a.faiss else None
+        print(json.dumps(search(db, q_seq=a.seq, q_text=a.text, k=a.k, ann=ann, candidate_pool=a.pool), indent=2))
     elif a.cmd == "cluster":
         from .cluster import cluster
         print(json.dumps(cluster(db, k=a.k), indent=2))

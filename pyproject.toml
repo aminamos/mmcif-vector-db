@@ -11,6 +11,7 @@ dev = ["pytest>=8.0"]
 [project.optional-dependencies]
 st = ["sentence-transformers>=3.0"]
 ann = ["lancedb>=0.20"]
+faiss = ["faiss-cpu>=1.9"]
 
 [project.scripts]
 mmcif-vec = "mmcif_vec.cli:main"

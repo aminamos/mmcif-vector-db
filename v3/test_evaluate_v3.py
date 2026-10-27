@@ -247,3 +247,59 @@ def test_load_vectors_structured_layout(tmp_path):
     vecs = ev.load_vectors(npz)
     assert set(vecs) == {"a", "b"}
     assert vecs["a"].tolist() == [1.0, 0.0]
+
+
+def test_strata_hand_computed_and_headline_unchanged():
+    # Six domains, all on distinct entries. Superfamilies: {a,b,c}, {d,e}, {f}.
+    specs = [("a", "p1", 1), ("b", "p2", 1), ("c", "p3", 1),
+             ("d", "p4", 2), ("e", "p5", 2), ("f", "p6", 3)]
+    domains = make_domains(specs)
+    # Angles chosen so every pairwise angular difference is distinct: no
+    # cosine ties, whose ranks would depend on floating-point dot products.
+    angles = {"a": 0.0, "b": 16.0, "c": 41.0, "d": 79.0, "e": 112.0, "f": 151.0}
+    vectors = {d: unit(a) for d, a in angles.items()}
+    # Gold per unordered pair (a<b<... order); cos(pair) = cos(angle diff)
+    # by construction, so every correlation below is hand-computable from
+    # these two tables alone.
+    gold_table = {
+        ("a", "b"): 0.90, ("a", "c"): 0.60, ("a", "d"): 0.20,
+        ("a", "e"): 0.10, ("a", "f"): 0.05, ("b", "c"): 0.40,
+        ("b", "d"): 0.55, ("b", "e"): 0.25, ("b", "f"): 0.15,
+        ("c", "d"): 0.35, ("c", "e"): 0.70, ("c", "f"): 0.02,
+        ("d", "e"): 0.80, ("d", "f"): 0.45, ("e", "f"): 0.30,
+    }
+    pairs = sorted(gold_table)
+    cos_all = [math.cos(math.radians(abs(angles[a] - angles[b]))) for a, b in pairs]
+    gold_all = [gold_table[p] for p in pairs]
+    same_sf = {("a", "b"), ("a", "c"), ("b", "c"), ("d", "e")}
+
+    def expected(mask):
+        xs = [c for c, m in zip(cos_all, mask) if m]
+        ys = [g for g, m in zip(gold_all, mask) if m]
+        return {"n_pairs": len(xs), "pearson": ev.pearson(xs, ys),
+                "spearman": ev.spearman(xs, ys)}
+
+    results = ev.evaluate(domains, gold_table, {"enc": vectors}, n_bootstrap=10)
+    enc = results["encoders"][0]
+    strata = enc["strata"]
+    for name, mask in [
+        ("candidate_high", [g >= 0.5 for g in gold_all]),
+        ("candidate_mid", [g >= 0.3 for g in gold_all]),
+        ("same_superfamily", [p in same_sf for p in pairs]),
+    ]:
+        exp = expected(mask)
+        assert strata[name]["n_pairs"] == exp["n_pairs"]
+        assert strata[name]["pearson"] == pytest.approx(exp["pearson"], rel=1e-9, abs=1e-12)
+        assert strata[name]["spearman"] == pytest.approx(exp["spearman"], rel=1e-9, abs=1e-12)
+    assert strata["candidate_high"]["n_pairs"] == 5
+    assert strata["candidate_mid"]["n_pairs"] == 9  # includes the >= 0.5 pairs and ef at exactly 0.30
+    assert strata["same_superfamily"]["n_pairs"] == 4
+    # Headline is exactly the correlation over all 15 headline pairs,
+    # unaffected by strata computation (bit-identical to direct metrics
+    # up to floating-point cosine evaluation).
+    assert enc["n_pairs_evaluated_headline"] == 15
+    assert enc["pearson"] == pytest.approx(ev.pearson(cos_all, gold_all), rel=1e-9, abs=1e-12)
+    assert enc["spearman"] == pytest.approx(ev.spearman(cos_all, gold_all), rel=1e-9, abs=1e-12)
+    md = ev.render_markdown(results)
+    assert "| enc | candidate_high | 5 |" in md
+    assert "| enc | same_superfamily | 4 |" in md
