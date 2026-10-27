@@ -421,3 +421,33 @@ literature: over all 2.42M pairs the task is dominated by unrelated pairs
 ESM2-t12 ranks best (Spearman 0.832) while the local encoder has the best
 Pearson (0.770) — consistent with the headline verdict (ESM the retrieval
 winner, local the best overall TM correlation).
+
+## ESM2-650M (v3 extension) — 2026-10-27
+
+Artifacts: `results_v3/esm2_t33_650m.{npz,json}` (vectors + run record),
+`results_v3/evaluation_with_esm650.{json,md}` (headline rerun),
+`results_v3/esm650_vs_usalign.json`, tools
+`results_v3/tools/encode_esm650.py` / `esm650_vs_usalign.py`, encode log
+`results_v3/esm650_encode.log`.
+
+ESM2-t33-650M (`facebook/esm2_t33_650M_UR50D`, 1280-d, mean-pooled
+residue embeddings, fp16) encoded all 2,202 v3 domains in **83.6 s**
+(peak GPU 4.87 GB) — vs 29 s / 534 MB for ESM2-t12 35M.
+
+| Encoder | Dim | Pearson | Spearman | top-1 | AUPR | AUROC |
+|---|---:|---:|---:|---:|---:|---:|
+| ESM2-t33-650M | 1280 | 0.057 [0.041, 0.072] | 0.034 [0.017, 0.053] | **0.903** | **0.528** | 0.895 |
+
+(Other rows unchanged — see headline table above; evaluation_with_esm650
+reruns the identical protocol.) Against USalign on the 2,000-pair
+subsample: Pearson 0.052 / Spearman 0.068.
+
+Interpretation: scaling 35M → 650M **improves the retrieval head**
+(best top-1 0.903 and best AUPR 0.528 of any encoder tested) but
+**worsens global TM correlation** (Pearson 0.057 vs t12's 0.087,
+Spearman 0.034 vs 0.084). For a production sequence-encoder upgrade,
+the 650M model is therefore the stronger retrieval candidate, at
+~3× the encode time and ~9× the GPU memory of the 35M model; it does
+not change the correlation verdict (local encoder still best on
+Pearson/AUROC) and, like t12, remains an optional-upgrade proposal,
+not the default.
