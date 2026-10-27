@@ -3,13 +3,14 @@ name = "mmcif-vector-db"
 version = "0.1.0"
 description = "MVP: put mmCIF files in a local vector database (text + representative-atom structure vectors)"
 requires-python = ">=3.11"
-dependencies = ["gemmi>=0.6", "numpy>=1.26"]
+dependencies = ["gemmi>=0.6", "numpy>=1.26", "sqlite-vec>=0.1"]
 
 [dependency-groups]
 dev = ["pytest>=8.0"]
 
 [project.optional-dependencies]
 st = ["sentence-transformers>=3.0"]
+ann = ["lancedb>=0.20"]
 
 [project.scripts]
 mmcif-vec = "mmcif_vec.cli:main"
