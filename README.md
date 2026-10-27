@@ -31,7 +31,7 @@ The rest of this page documents the v1 baseline underneath it.
     No raw xyz — rotated/translated copies stay neighbours.
   - `text_vec` — hashed title/method/source tokens
   - `combined_vec` — concat(seq, struct, text) weighted 0.45/0.45/0.10
-- **Store:** SQLite, vectors as float32 blobs, brute-force cosine (MVP scale).
+- **Store:** one SQLite file — `chains` table (metadata + seq/struct/text/combined float32 BLOBs) plus four sqlite-vec `vec0` KNN tables (`vec_combined` 768-d, others 256-d). vec0 generates candidates; the exact block-cosine rerank below is unchanged, so results match the old brute-force scan. Optional LanceDB ANN sidecar (`--ann`) for interactive latency at scale. Old DBs migrate/backfill on open. See [EVALUATION.md](EVALUATION.md#vector-store-sqlite-vec--optional-lancedb-ann--2026-10-27).
 - **Cluster:** k-means (cosine, k-means++) over `combined_vec` -> `cluster_id`.
 - **Rerank:** retrieve by combined vector, rerank by mean(seq, struct, text)
   scores; every hit reports all three scores separately.
@@ -88,14 +88,33 @@ uv run mmcif-vec --db mmcif.db cluster --k 2
 uv run mmcif-vec --db mmcif.db similar examples/2a3s.cif
 uv run mmcif-vec --db mmcif.db search --text "myocyte nuclear factor"
 uv run mmcif-vec --db mmcif.db rag "myocyte nuclear factor DNA binding"
+# Optional ANN sidecar (LanceDB) for large corpora:
+uv sync --extra ann
+uv run mmcif-vec --db mmcif.db build-ann --out mmcif_ann
+uv run mmcif-vec --db mmcif.db similar examples/2a3s.cif --ann mmcif_ann
+uv run mmcif-vec --db mmcif.db search --text "myocyte nuclear factor" --ann mmcif_ann
 uv run --group dev pytest -q
 ```
 
 Examples: PDB 2A3S / 1N6J / 1EGW, AFDB AF-P42128-F1 (same Foxk1 protein as
 2A3S — they should retrieve/cluster together on seq+struct, across sources).
 
+## Store scale (measured; detail in [EVALUATION.md](EVALUATION.md#vector-store-sqlite-vec--optional-lancedb-ann--2026-10-27))
+
+Exact search is the default (vec0 is a linear scan — exact, single-file);
+`--ann` (IVF_FLAT, nprobes=128) is for interactive latency above ~100–500k
+vectors. ANN benchmarked at 500k only.
+
+| Size | Insert (vec/s) | Exact search p50 | ANN search p50 | DB size |
+|---|---:|---:|---:|---:|
+| real-2202 | 1,480 | 6.0 ms | — | 38 MB |
+| 10k | 1,414 | 17.5 ms | — | 147 MB |
+| 100k | 1,335 | 176 ms | — | 1.5 GB |
+| 500k | 1,297 | 871 ms | 35.6 ms (recall 0.998, 24.8×) | 7.3 GB |
+| 2M | 1,280 | 3,538 ms | not benchmarked | 29.2 GB |
+
 ## Next (not MVP)
 
 - Optional pretrained sequence encoder (e.g. ESM2-t12) if retrieval quality becomes the bottleneck — separate proposal; NVIDIA La-Proteina evaluated and rejected (above)
-- Scale store -> sqlite-vec / LanceDB; bulk PDB + AFDB ingest
+- Bulk PDB + AFDB ingest
 - SIFTS UniProt/Pfam metadata joins; Prompteina text<->latent alignment

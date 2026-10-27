@@ -242,3 +242,98 @@ retrieval (top-1 0.305, AUPR 0.103) and worst-or-tied-worst correlation of the
 three, with by far the heaviest stack (4.1 GB checkpoints, WSL2/CUDA venv,
 321 s sharded encode). The small-set tie that kept AE2 alive in the v1
 evaluation does not survive a 2,202-domain benchmark.
+
+## Vector store (sqlite-vec + optional LanceDB ANN) — 2026-10-27
+
+Artifacts: `results_store/benchmark_store.{md,json}` (exact store),
+`results_store/benchmark_ann.{md,json}` (ANN), harnesses
+`scripts/benchmark_store.py` / `scripts/benchmark_ann.py`. The large bench
+DBs and ANN indexes under `results_store/.bench_dbs/` and
+`results_store/.ann_indexes/` are gitignored and regenerable.
+
+### Architecture
+
+- One SQLite file. The `chains` table keeps chain metadata plus the four
+  vectors as float32 BLOBs (`seq`/`struct`/`text` 256-d, `combined` 768-d);
+  four sqlite-vec `vec0` tables (`vec_combined` 768, `vec_seq`/`vec_struct`/
+  `vec_text` 256) keyed by `uid` mirror them for KNN candidate generation.
+  `sqlite-vec>=0.1` is a core dependency; the extension loads at DB open
+  with a clear error if unavailable.
+- Search is unchanged in result semantics: vec0 KNN generates a candidate
+  pool, then candidates are reranked with the identical exact block
+  cosines (mean of seq/struct/text scores) the old brute-force scan used,
+  and result scores are those exact rerank scores.
+- Old pre-vec0 databases migrate on open: the vec0 tables are created and
+  backfilled from the existing `chains` BLOBs in chunked transactions, so
+  existing DBs open and search without re-ingest.
+- Writes: the connection is autocommit; `DB.transaction()` is the explicit
+  unit of work. `upsert_chain` joins the ambient transaction (no per-call
+  commit), and `ingest` wraps a whole file in one transaction.
+
+### Exact-store benchmark
+
+Methodology caveat: corpora above the real set are **synthetic** — real v3
+combined vectors plus Gaussian jitter (σ=0.05), renormalised. This measures
+store mechanics (insert, KNN scan, rerank, on-disk size), not encoder
+quality. 50 fixed queries, k=10, per size.
+
+| Size | Insert (vec/s) | Search p50 | Search p95 | Top-10 agreement vs brute force |
+|---|---:|---:|---:|---:|
+| real-2202 | 1,480 | 6.0 ms | 6.2 ms | 1.000 |
+| 10k | 1,414 | 17.5 ms | 19.6 ms | 1.000 |
+| 100k | 1,335 | 176 ms | 182 ms | 0.998 |
+| 500k | 1,297 | 871 ms | 882 ms | 0.998 |
+| 2M | 1,280 | 3,538 ms | 3,616 ms | 0.994 |
+
+The 2M row was **measured**, not projected (~26 min insert at 1,280 vec/s;
+DB 29,199 MB). Agreement below 1.0 is exclusively adjacent near-tie swaps
+(rerank deltas ≤5e-5; identical at the 4-decimal precision search reports).
+
+Insert batching fix: the original per-row-commit upsert measured
+~230–297 vec/s. Wrapping ingest in one transaction per file (chunked
+transactions for migration/backfill) raised this to ~1.28–1.48k vec/s,
+essentially flat to 2M with no throughput cliff.
+
+Honesty note: **vec0 KNN here is a linear scan.** Exact search latency
+scales linearly with corpus size, and a chunked NumPy brute force is ~10×
+faster at large sizes (338 ms vs 3,538 ms at 2M). vec0 is kept for
+exactness (bit-identical rerank semantics) and single-file simplicity —
+not for speed. That is the trade the ANN path below exists to address.
+
+### ANN (LanceDB, optional `ann` extra)
+
+LanceDB is an optional dependency (`uv sync --extra ann`, resolved to
+LanceDB 0.40.0), imported lazily: the exact path works without it, and
+using `--ann` without the extra raises a clear error. The index is a
+sidecar directory (`ann_meta.json` + Lance dataset) built with
+`build-ann --out DIR` from an existing DB, in chunks; ANN candidates
+(combined mode only) go through the same exact rerank as vec0 candidates.
+Corpora under 2,048 rows skip IVF training and use LanceDB's flat exact
+scan. IVF_FLAT with 256 partitions, cosine.
+
+Benchmarked **at 500k only** — ANN at 2M was not benchmarked, and no 2M
+ANN number is claimed. Build: 16.3 s; index 3,079 MB. Tuning (50 queries,
+k=10, candidate pool 40; exact search p50 at 500k: 883 ms):
+
+| nprobes | Pool recall@40 | Top-10 agreement | search(ann) p50 |
+|---:|---:|---:|---:|
+| 20 | 0.6845 | 0.658 | 18.0 ms |
+| 40 | 0.8755 | 0.854 | 22.7 ms |
+| 80 | 0.967 | 0.950 | 29.2 ms |
+| 128 | 0.998 | 0.998 | 35.6 ms |
+
+nprobes=128 is the default: recall 0.998, 35.6 ms vs 883 ms exact =
+**24.8× faster** at 500k. IVF_PQ and IVF_HNSW_FLAT were also tried and
+lost on recall (see `results_store/benchmark_ann.md`/harness). On the
+real-2202 corpus, ANN top-1 equals exact top-1 for 20/20 sampled queries.
+
+### Guidance
+
+- **Exact search is the default** and stays correct at every scale; use
+  it unless latency says otherwise.
+- Use `--ann` for interactive latency above roughly **100–500k vectors**,
+  where exact search passes ~0.2–0.9 s per query.
+- Storage: the SQLite DB costs **~14.6 KB/vector** (~2.4× the raw float32
+  payload, across `chains` BLOBs + four vec0 tables) — ~29 GB at 2M
+  vectors, excluding the corpus CIF files themselves. The 500k ANN
+  sidecar adds ~3.1 GB.
