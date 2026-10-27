@@ -198,13 +198,20 @@ def _knn_rows(db: DB, table: str, key: str, q, pool_size: int):
     if not hits: return []
     return _rows_by_uid(db, [h[0] for h in hits])
 
-def search(db: DB, q_seq=None, q_struct=None, q_text=None, k=5, rerank=True, ann=None):
+def search(db: DB, q_seq=None, q_struct=None, q_text=None, k=5, rerank=True, ann=None,
+           candidate_pool: int | None = None):
     """Retrieve by combined vector, then rerank by separate seq/struct/text scores.
 
     Optional ``ann`` (an ``mmcif_vec.ann.ANNIndex`` over combined vectors):
     only used for combined (seq+struct) queries, where candidate uids come
     from ``ann.query`` instead of the exact vec0 scan. All other modes
     ignore it. Fetch/rerank/result format are identical either way.
+
+    ``candidate_pool``: number of candidates fetched (from ``ann`` or the
+    exact vec0 scan) before exact reranking. ``None`` (default) keeps the
+    historical ``max(4*k, k)`` pool when reranking (``k`` otherwise).
+    Larger pools help approximate candidate sources (e.g. PQ indexes)
+    whose top-``4k`` misses candidates the exact rerank would promote.
     """
     if not db._chain_count(): return []
     # build query combined in same block layout
@@ -220,7 +227,12 @@ def search(db: DB, q_seq=None, q_struct=None, q_text=None, k=5, rerank=True, ann
             table, key, q = "vec_seq", "seq_vec", sv
     else:
         table, key, q = "vec_combined", "combined_vec", combined_vector(sv, stv, tv)
-    pool_size = max(k*4, k) if rerank else k
+    if candidate_pool is not None:
+        if int(candidate_pool) <= 0:
+            raise ValueError("candidate_pool must be positive")
+        pool_size = max(int(candidate_pool), k) if rerank else k
+    else:
+        pool_size = max(k*4, k) if rerank else k
     if ann is not None and table == "vec_combined" and q_struct is not None and np.linalg.norm(q):
         cand_rows = _rows_by_uid(db, [uid for uid, _ in ann.query(q, pool_size)])
     else:

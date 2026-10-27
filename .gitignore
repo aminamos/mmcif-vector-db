@@ -14,3 +14,4 @@ results_v3/fs_out.tsv
 results_v3/fs_out_raw.tsv
 results_store/.bench_dbs/
 results_store/.ann_indexes/
+results_store/.faiss_indexes/
