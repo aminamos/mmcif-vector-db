@@ -31,7 +31,7 @@ The rest of this page documents the v1 baseline underneath it.
     No raw xyz — rotated/translated copies stay neighbours.
   - `text_vec` — hashed title/method/source tokens
   - `combined_vec` — concat(seq, struct, text) weighted 0.45/0.45/0.10
-- **Store:** one SQLite file — `chains` table (metadata + seq/struct/text/combined float32 BLOBs) plus four sqlite-vec `vec0` KNN tables (`vec_combined` 768-d, others 256-d). vec0 generates candidates; the exact block-cosine rerank below is unchanged, so results match the old brute-force scan. Optional LanceDB ANN sidecar (`--ann`) for interactive latency at scale. Old DBs migrate/backfill on open. See [EVALUATION.md](EVALUATION.md#vector-store-sqlite-vec--optional-lancedb-ann--2026-10-27).
+- **Store:** one SQLite file — `chains` table (metadata + seq/struct/text/combined float32 BLOBs) plus four sqlite-vec `vec0` KNN tables (`vec_combined` 768-d, others 256-d). vec0 generates candidates; the exact block-cosine rerank below is unchanged, so results match the old brute-force scan. Optional ANN sidecars for interactive latency at scale: LanceDB (`--ann`) or FAISS (`--faiss`, third tier). Old DBs migrate/backfill on open. See [EVALUATION.md](EVALUATION.md#vector-store-sqlite-vec--optional-lancedb-ann--2026-10-27).
 - **Cluster:** k-means (cosine, k-means++) over `combined_vec` -> `cluster_id`.
 - **Rerank:** retrieve by combined vector, rerank by mean(seq, struct, text)
   scores; every hit reports all three scores separately.
@@ -65,6 +65,8 @@ protocol, CIs, USalign gold-validation caveat, and sensitivity analysis:
 | ESM2-t12 35M | 480 | 0.087 | 0.084 | 0.892 | 0.498 | 0.897 | 29 s GPU, 534 MB peak, pretrained model + transformers |
 | NVIDIA La-Proteina AE2, mean-only | 8 | 0.104 | 0.084 | 0.305 | 0.103 | 0.813 | 321 s GPU sharded, 2.1 GB peak, 4.1 GB checkpoints + WSL2/CUDA stack |
 
+Stratified (gold TM ≥ 0.5 pairs, n=6,866): local P/S 0.770/0.800, ESM2-t12 0.600/0.832 — see EVALUATION.md.
+
 ### Should we use the NVIDIA encoder?
 
 (a) **Can we go without it? Yes.** The local encoder equals or beats it
@@ -88,11 +90,14 @@ uv run mmcif-vec --db mmcif.db cluster --k 2
 uv run mmcif-vec --db mmcif.db similar examples/2a3s.cif
 uv run mmcif-vec --db mmcif.db search --text "myocyte nuclear factor"
 uv run mmcif-vec --db mmcif.db rag "myocyte nuclear factor DNA binding"
-# Optional ANN sidecar (LanceDB) for large corpora:
+# Optional ANN sidecars (LanceDB / FAISS) for large corpora:
 uv sync --extra ann
 uv run mmcif-vec --db mmcif.db build-ann --out mmcif_ann
 uv run mmcif-vec --db mmcif.db similar examples/2a3s.cif --ann mmcif_ann
-uv run mmcif-vec --db mmcif.db search --text "myocyte nuclear factor" --ann mmcif_ann
+uv sync --extra faiss
+uv run mmcif-vec --db mmcif.db build-faiss --out mmcif_faiss
+uv run mmcif-vec --db mmcif.db similar examples/2a3s.cif --faiss mmcif_faiss --pool 40
+uv run mmcif-vec --db mmcif.db search --text "myocyte nuclear factor" --faiss mmcif_faiss
 uv run --group dev pytest -q
 ```
 
@@ -101,9 +106,12 @@ Examples: PDB 2A3S / 1N6J / 1EGW, AFDB AF-P42128-F1 (same Foxk1 protein as
 
 ## Store scale (measured; detail in [EVALUATION.md](EVALUATION.md#vector-store-sqlite-vec--optional-lancedb-ann--2026-10-27))
 
-Exact search is the default (vec0 is a linear scan — exact, single-file);
-`--ann` (IVF_FLAT, nprobes=128) is for interactive latency above ~100–500k
-vectors. ANN benchmarked at 500k only.
+Exact search is the default (vec0 is a linear scan — exact, single-file).
+`--ann` (LanceDB IVF_FLAT, nprobes=128) is for interactive latency above
+~100–500k vectors; `--faiss` (FAISS) is the @2M tier: chosen operating
+point IVF512,Flat nprobe=256 gives recall@40 0.9985 at search p50 116 ms
+at 2M (6.24 GB index). FAISS IVF_PQ is **not recommended as the sole
+candidate source** (recall@400 0.2045 even with `--pool 400`).
 
 | Size | Insert (vec/s) | Exact search p50 | ANN search p50 | DB size |
 |---|---:|---:|---:|---:|

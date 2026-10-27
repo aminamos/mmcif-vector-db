@@ -337,3 +337,87 @@ real-2202 corpus, ANN top-1 equals exact top-1 for 20/20 sampled queries.
   payload, across `chains` BLOBs + four vec0 tables) — ~29 GB at 2M
   vectors, excluding the corpus CIF files themselves. The 500k ANN
   sidecar adds ~3.1 GB.
+
+## FAISS ANN backend (optional `faiss` extra) — 2026-10-27
+
+Artifacts: `results_store/benchmark_faiss.{md,json}`, harness
+`scripts/benchmark_faiss.py`, implementation `mmcif_vec/faiss_ann.py`
+(`FaissIndex`). Indexes under `results_store/.faiss_indexes/` are
+gitignored and regenerable (same for `.bench_dbs/` / `.ann_indexes/`).
+
+FAISS is an optional dependency (`uv sync --extra faiss`, faiss-cpu
+1.15.1), imported lazily like LanceDB: the exact and LanceDB paths work
+without it. Build with `build-faiss --out DIR [--factory ivf_flat|ivf_pq]
+[--nlist N] [--pq-m 96]`, query with `similar`/`search --faiss DIR
+[--pool N]` (`--ann` and `--faiss` are mutually exclusive). Factories are
+`IVF<nlist>,Flat` (default `nlist ≈ sqrt(N)`, capped 4096) and
+`IVF<nlist>,PQ<pq_m>` (default PQ96), inner-product over the 768-d
+combined vector, trained on ≤262k vectors. FAISS (like LanceDB) only
+supplies candidates for combined queries; candidates go through the same
+exact block-cosine rerank as vec0. `db.search(..., candidate_pool=...)`
+(CLI `--pool`) overrides the historical `max(4k, k)` pre-rerank pool —
+backward compatible (`None` keeps the old pool) and useful for
+approximate candidate sources whose top-`4k` misses rerankable hits.
+
+### Benchmark @2M (measured, synthetic-jitter corpus as in the store bench)
+
+50 fixed queries, k=10, candidate pool 40 unless noted; exact search
+p50 3,537 ms at 2M.
+
+| Config | nprobe | Pool recall | Top-10 agree | Cand p50 | Search p50 | Index |
+|---|---:|---:|---:|---:|---:|---:|
+| IVF4096,Flat | 128 (3.1% of cells) | 0.7005 @40 | 0.702 | 12.5 ms | 47 ms | 6.25 GB |
+| IVF512,Flat (tuned) | 256 (50% of cells) | 0.9985 @40 | 0.996 | 86 ms | 116 ms | 6.24 GB |
+| IVF4096,PQ96 | 128, pool=400 | 0.2045 @400 | 0.436 | 11 ms | 171 ms | 301 MB |
+
+**Chosen operating point: IVF512,Flat at nprobe=256** — recall@40 0.9985,
+top-10 agreement 0.996, search p50 116 ms vs 3,537 ms exact (~30×), at
+the cost of a 6.24 GB index and probing 50% of cells. **IVF4096,PQ96 is
+not viable as the sole candidate source**: even with `candidate_pool=400`
+recall@400 is only 0.2045 (top-10 0.436 after exact rerank); its 301 MB
+index (~20× smaller) does not compensate. LanceDB comparison: at 500k
+LanceDB reached recall 0.998 at 36 ms probing 128/256 = 50% of
+partitions — FAISS matches that recall only at a comparable probed
+fraction (IVF512 nprobe=256), on a 4× larger corpus; neither engine gets
+near-exact recall for free at low probe fractions on this corpus.
+
+## Invariance checks — 2026-10-27
+
+Artifacts: `results_store/invariance_check.json`, `tests/test_invariance.py`.
+
+- **Local `struct_vector`: exactly invariant.** Under random proper
+  rotations + translations (and in the test suite, 5 seeds × 3 chains)
+  the max absolute difference is 1.9e-9 — CIF coordinate rounding only.
+  This is by construction (CA distance histograms, no raw xyz). Caveat:
+  it is also **reflection-invariant**, i.e. chirality-blind — a structure
+  and its mirror image get identical struct vectors. That is a documented
+  limitation of distance-histogram features, not a bug.
+- **NVIDIA AE2: NOT rotation-invariant (measured).** Method: 1UBQ chain
+  encoded, then re-encoded after a random rotation (seed 12345) in the
+  WSL2/CUDA AE2 stack. Rotated-vs-original pooled cosine is **0.8621**
+  (not ~1.0), and per-residue latent drift reaches max L2 **4.976**
+  (8-d posterior-mean latents). Implication: AE2 latents would need
+  canonicalisation (or rotation augmentation at encode time) before any
+  database use — another reason, beyond the v3 verdict above, that AE2
+  stays rejected as a stored-vector encoder.
+
+## v3 stratified correlations — 2026-10-27
+
+Artifacts: `results_v3/evaluation_stratified.{json,md}` (harness
+`v3/evaluate_v3.py`, strata over headline cross-entry pairs, no
+bootstrap). Headline all-pairs numbers are unchanged (local Pearson
+0.159 etc., table above).
+
+| Stratum | n pairs | Local P / S | AE2 P / S | ESM2-t12 P / S |
+|---|---:|---|---|---|
+| Gold TM ≥ 0.5 (`candidate_high`) | 6,866 | 0.770 / 0.800 | 0.519 / 0.573 | 0.600 / 0.832 |
+| Same superfamily | 6,190 | 0.718 / 0.805 | 0.488 / 0.576 | 0.558 / 0.824 |
+
+The pair universe explains most of the gap between the low headline
+correlations and the higher candidate-restricted numbers quoted in the
+literature: over all 2.42M pairs the task is dominated by unrelated pairs
+(gold TM ≥ 0.7 in 0.17%), whereas restricted to plausible candidates
+(TM ≥ 0.5) every encoder correlates far better. Within candidate pairs,
+ESM2-t12 ranks best (Spearman 0.832) while the local encoder has the best
+Pearson (0.770) — consistent with the headline verdict (ESM the retrieval
+winner, local the best overall TM correlation).
